@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{% block title%}Chenyang's Dashboard{% endblock %}</title>
+
+    <link href="/static/css/main.css" rel="stylesheet" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
+
+    <link rel="manifest" href="/static/site.webmanifest">
+    {% block head_script %}{# defer-incapable JS block #}{% endblock %}
+  </head>
+  <body>
+    <img async-src="https://radar.weather.gov/ridge/lite/N0R/BOX_loop.gif" src="/static/img/loading.gif">
+    <img id="metoblue_img" src="/static/img/loading.gif">
+    <img async-src="https://radar.weather.gov/ridge/Conus/Loop/northeast_loop.gif" src="/static/img/loading.gif">
+
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+    <script src="/static/js/dashboard.js"></script>
+  </body>
+</html>
