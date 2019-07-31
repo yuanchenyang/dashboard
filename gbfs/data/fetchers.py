@@ -1,10 +1,8 @@
-import abc
 import requests
 import json
 
 
-class FileFetcher(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
+class FileFetcher():
     def fetch(url):
         pass
 
