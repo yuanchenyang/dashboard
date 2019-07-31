@@ -32,6 +32,5 @@ def get_bluebikes():
     stations = client.get_stations()
     return json.dumps([stations[i] for i in BLUEBIKE_STATIONS])
 
-
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=80)
