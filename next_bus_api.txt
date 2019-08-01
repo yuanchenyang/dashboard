@@ -1,0 +1,31 @@
+Reference:
+https://www.nextbus.com/xmlFeedDocs/NextBusXMLFeed.pdf
+
+Agency list:
+http://webservices.nextbus.com/service/publicXMLFeed?command=agencyList
+- charles-river
+
+Route list:
+http://webservices.nextbus.com/service/publicXMLFeed?command=routeList&a=charles-river
+- evening
+- midday
+- morning
+
+Route info (stops and coords):
+http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=charles-river
+
+Morning/Evening: Cambridgeport/Brookline St
+ - tag: cambbroo
+ - id: 19
+ - direction: nstat
+
+Midday: Pacific St/Landsdowne (Inbound)
+ - tag: paciland_ib
+ - id: 20
+ - direction: amesmain
+
+Prediction using stop id:
+http://webservices.nextbus.com/service/publicXMLFeed?command=predictions&a=charles-river&stopId=0019
+
+Vehicle locations:
+http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=charles-river&r=morning&t=0
