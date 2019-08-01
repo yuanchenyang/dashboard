@@ -1,7 +1,69 @@
 {% extends "base.html" %}
 
+{% macro std_card(title) %}
+<div class="card shadow mb-4">
+  <div class="card-header py-3">
+    <h6 class="m-0 font-weight-bold text-primary"> {{ title }} </h6>
+  </div>
+  <div class="card-body">
+    <div class="text-center">
+      {{ caller() }}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro small_card(title) %}
+<div class="col-xl-3 col-md-6 mb-4">
+  <div class="card border-left-primary shadow h-100 py-2">
+    <div class="card-body">
+      <div class="row no-gutters align-items-center">
+        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 mt-n3">{{ title }}</div>
+      </div>
+      <div class="row no-gutters align-items-center">
+        {{ caller() }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
 {% block content %}
-<img id="metoblue_img" src="/static/img/loading.gif">
-    <img async-src="https://radar.weather.gov/ridge/lite/N0R/BOX_loop.gif" src="/static/img/loading.gif">
-    <img async-src="https://radar.weather.gov/ridge/Conus/Loop/northeast_loop.gif" src="/static/img/loading.gif">
+<!--   Row   -->
+<div class="row">
+  <!--   Card 1   -->
+  {% call small_card('Sidney/Erie') %}
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800">N.A.</div>
+    <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800">N.A.</div>
+    <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
+  {% endcall %}
+  <!--   Card 2   -->
+  {% call small_card('Vassar/Stata') %}
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800">N.A.</div>
+    <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800">N.A.</div>
+    <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
+  {% endcall %}
+</div>
+<!--   Row   -->
+<div class="row">
+  <!--   Column   -->
+  <div class="col-lg-6 mb-4">
+    {% call std_card('Multimodel Forecast') %}
+      <img id="metoblue_img" src="/static/img/loading.gif">
+    {% endcall %}
+  </div>
+  <!--   Column   -->
+  <div class="col-lg-6 mb-4">
+    <!--   Weather card 1   -->
+    {% call std_card('MA Weather Radar') %}
+      <img async-src="https://radar.weather.gov/ridge/lite/N0R/BOX_loop.gif" src="/static/img/loading.gif">
+    {% endcall %}
+    <!--   Weather card 2   -->
+    {% call std_card('Northeast Weather Radar') %}
+      <img async-src="https://radar.weather.gov/ridge/Conus/Loop/northeast_loop.gif" src="/static/img/loading.gif">
+    {% endcall %}
+  </div>
+</div>
 {% endblock %}
