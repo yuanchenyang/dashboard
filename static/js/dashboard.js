@@ -28,4 +28,6 @@ $(function() {
     loadImages();
     loadMeteoblue();
     loadBluebikes();
+    setInterval(loadMeteoblue, 30*60*1000); // Refresh every 30 minutes
+    setInterval(loadBluebikes, 30*1000); // Refresh every 30 seconds
 });
