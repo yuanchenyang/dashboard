@@ -2,3 +2,14 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+.col-xl-1_5{
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 12.5%;
+    flex: 0 0 12.5%;
+    max-width: 12.5%;
+    position: relative;
+    width: 100%;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}

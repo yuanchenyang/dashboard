@@ -14,11 +14,11 @@
 {% endmacro %}
 
 {% macro small_card(title) %}
-<div class="col-xl-3 col-md-6 mb-4">
+<div class="col-xl-2 col-md-6 mb-4">
   <div class="card border-left-primary shadow h-100 py-2">
-    <div class="card-body">
+    <div class="card-body pt-2 pb-2">
       <div class="row no-gutters align-items-center">
-        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1 mt-n3">{{ title }}</div>
+        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ title }}</div>
       </div>
       <div class="row no-gutters align-items-center">
         {{ caller() }}
@@ -33,16 +33,23 @@
 <div class="row">
   <!--   Card 1   -->
   {% call small_card('Sidney/Erie') %}
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800">N.A.</div>
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-184-bikes">N.A.</div>
     <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800">N.A.</div>
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-184-docks">N.A.</div>
     <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
   {% endcall %}
   <!--   Card 2   -->
   {% call small_card('Vassar/Stata') %}
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800">N.A.</div>
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-80-bikes">N.A.</div>
     <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800">N.A.</div>
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-80-docks">N.A.</div>
+    <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
+  {% endcall %}
+  <!--   Card 3   -->
+  {% call small_card('Mass Ave/W20') %}
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-67-bikes">N.A.</div>
+    <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
+    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-67-docks">N.A.</div>
     <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
   {% endcall %}
 </div>
