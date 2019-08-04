@@ -1,8 +1,10 @@
 function loadImages(){
+    var date = new Date();
     $('img[async-src]').each(
         function(){
-            //* set the img src from data-src
-            $(this).attr('src', $(this).attr('async-src'));
+            //* set the img src from async-src
+            var new_src = $(this).attr('async-src') + '?_=' + date.getTime();
+            $(this).attr('src', new_src);
         }
     );
 }
@@ -25,9 +27,10 @@ function loadBluebikes(){
 }
 
 $(function() {
-    loadImages();
     loadMeteoblue();
+    loadImages();
     loadBluebikes();
     setInterval(loadMeteoblue, 30*60*1000); // Refresh every 30 minutes
-    setInterval(loadBluebikes, 30*1000); // Refresh every 30 seconds
+    setInterval(loadImages   , 10*60*1000); // Refresh every 10 minutes
+    setInterval(loadBluebikes, 30*1000);    // Refresh every 30 seconds
 });
