@@ -32,7 +32,7 @@ def get_blooimage_src(url):
     return soup.find(id='blooimage').find('img')['data-original']
 
 def scrape_wunderground(station_id):
-    url = f'{WUNDERGROUND_URL}/{station_id}'
+    url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
     soup = BeautifulSoup(requests.get(url).text, features="html5lib")
     vals = soup.find_all("span", attrs={'class': 'wu-value'})
     temp_F, humidity, wind_mph = [float(vals[i].text) for i in (0, 7, 2)]
@@ -48,9 +48,9 @@ def scrape_sailing_weather():
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
 def weather_data_json(temp=0, rel_humidity=0, wind_speed=0):
-    return json.dumps({'temp'    : f'{temp:.1f} &deg;C',
-                       'humidity': f'{rel_humidity:.0f} %',
-                       'wind'    : f'{wind_speed:.0f} km/h'})
+    return json.dumps({'temp'    : '{:.1f} &deg;C'.format(temp),
+                       'humidity': '{:.0f} %'.format(rel_humidity),
+                       'wind'    : '{:.0f} km/h'.format(wind_speed)})
 
 def F_to_C(f):
     return (f-32)*5/9
