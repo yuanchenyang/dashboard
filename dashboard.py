@@ -5,10 +5,8 @@ import json
 
 from flask import Flask, render_template, request
 from werkzeug.serving import BaseRequestHandler
-from utils import GBFSStationClient, get_blooimage_src
-
-BLUEBIKE_GBFS = 'https://gbfs.bluebikes.com/gbfs/gbfs.json'
-METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/forecast/multimodel/cambridge_united-states-of-america_4931972'
+from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
+                  scrape_sailing_weather
 
 app = Flask(__name__)
 
@@ -19,17 +17,25 @@ def main_page():
 @app.route('/get_meteoblue')
 def get_meteoblue():
     try:
-        return get_blooimage_src(METEOBLUE_URL)
+        return get_blooimage_src(request.args.get('url', ''))
     except:
         # TODO: add error image
         return '/static/img/favicon-32x32.png'
 
 @app.route('/get_bluebikes')
 def get_bluebikes():
-    client = GBFSStationClient(BLUEBIKE_GBFS)
+    client = GBFSStationClient()
     stations = client.get_stations()
     requested = request.args.get('station_ids').split(',')
     return json.dumps({i: stations[i] for i in requested})
+
+@app.route('/get_wunderground')
+def get_wunderground():
+    return scrape_wunderground(request.args.get('id'))
+
+@app.route('/get_sailing_weather')
+def get_sailing_weather():
+    return scrape_sailing_weather()
 
 @app.errorhandler(404)
 def page_not_found(e):

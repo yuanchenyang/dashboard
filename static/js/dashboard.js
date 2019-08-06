@@ -1,3 +1,9 @@
+function getIDByAttr(attr){
+    return $('[' + attr + ']').map(function () {
+        return this.getAttribute(attr);
+    }).get();
+}
+
 function loadImages(){
     var date = new Date();
     $('img[async-src]').each(
@@ -10,27 +16,45 @@ function loadImages(){
 }
 
 function loadMeteoblue(){
-    $.get('/get_meteoblue', function(data) {
-        $("#metoblue_img").attr("src", data);
+    var mb_img = $('#metoblue_img');
+    $.get('/get_meteoblue?url=' + mb_img.attr('mb_url'), function(data) {
+        mb_img.attr('src', data);
     });
 }
 
 function loadBluebikes(){
-    var stations = [80, 184, 67];
+    var stations = getIDByAttr('bluebike_card_id');
+
     $.get('/get_bluebikes?station_ids=' + stations.join(','), function(data) {
         data = JSON.parse(data);
         stations.forEach(function (e) {
-            $("#bb-"+ e + "-bikes").text(data[e]['num_bikes_available']);
-            $("#bb-"+ e + "-docks").text(data[e]['num_docks_available']);
+            $('#bb-'+ e + '-bikes').text(data[e]['num_bikes_available']);
+            $('#bb-'+ e + '-docks').text(data[e]['num_docks_available']);
         });
+    });
+}
+
+function loadWeather(){
+    var stations = getIDByAttr('weather_station_card_id');
+
+    stations.forEach(function(id){
+        $.get($('[weather_station_card_id=\''+id+'\']').attr('url'),
+              function(data) {
+                  data = JSON.parse(data);
+                  ['temp', 'humidity', 'wind'].forEach(function (param){
+                      $('#ws-'+id+'-'+param).html(data[param]);
+                  });
+              });
     });
 }
 
 $(function() {
     loadMeteoblue();
     loadImages();
+    loadWeather();
     loadBluebikes();
     setInterval(loadMeteoblue, 30*60*1000); // Refresh every 30 minutes
     setInterval(loadImages   , 10*60*1000); // Refresh every 10 minutes
+    setInterval(loadWeather  , 5*60*1000);  // Refresh every 5 minutes
     setInterval(loadBluebikes, 30*1000);    // Refresh every 30 seconds
 });

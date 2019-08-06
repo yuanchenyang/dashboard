@@ -13,15 +13,49 @@
 </div>
 {% endmacro %}
 
-{% macro small_card(title) %}
-<div class="col-xl-2 col-md-6 mb-4">
+{% macro bb_card(id, title) %}
+<div class="col-xl-2 col-sm-6 mb-4" bluebike_card_id="{{ id }}">
   <div class="card border-left-primary shadow h-100 py-2">
     <div class="card-body pt-2 pb-2">
       <div class="row no-gutters align-items-center">
-        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">{{ title }}</div>
+        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+          {{ title }}
+        </div>
       </div>
       <div class="row no-gutters align-items-center">
-        {{ caller() }}
+        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
+             id="bb-{{ id }}-bikes">?</div>
+        <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
+        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
+             id="bb-{{ id }}-docks">?</div>
+        <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+
+{% macro weather_station_card(id, url, title) %}
+<div class="col-xl-3 col-md-6 mb-4"
+     weather_station_card_id="{{ id }}" url="{{ url }}">
+  <div class="card border-left-success shadow h-100 py-2">
+    <div class="card-body pt-2 pb-2">
+      <div class="row no-gutters align-items-center">
+        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+          {{ title }}
+        </div>
+      </div>
+      <div class="row no-gutters align-items-center">
+        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
+             id="ws-{{ id }}-temp">N.A.</div>
+        <i class="fas fa-thermometer-three-quarters fa-2x text-gray-300 mr-4"></i>
+        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
+             id="ws-{{ id }}-humidity">N.A.</div>
+        <i class="fas fa-tint fa-2x text-gray-300 mr-4"></i>
+        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
+             id="ws-{{ id }}-wind">N.A.</div>
+        <i class="fas fa-wind fa-2x text-gray-300 mr-2"></i>
       </div>
     </div>
   </div>
@@ -31,45 +65,34 @@
 {% block content %}
 <!--   Row   -->
 <div class="row">
-  <!--   Card 1   -->
-  {% call small_card('Sidney/Erie') %}
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-184-bikes">N.A.</div>
-    <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-184-docks">N.A.</div>
-    <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
-  {% endcall %}
-  <!--   Card 2   -->
-  {% call small_card('Vassar/Stata') %}
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-80-bikes">N.A.</div>
-    <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-80-docks">N.A.</div>
-    <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
-  {% endcall %}
-  <!--   Card 3   -->
-  {% call small_card('Mass Ave/W20') %}
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-67-bikes">N.A.</div>
-    <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
-    <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800" id="bb-67-docks">N.A.</div>
-    <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
-  {% endcall %}
+  <!--   Bluebike Cards   -->
+    {{ bb_card('184', 'Sidney/Erie') }}
+    {{ bb_card('80', 'Vassar/Stata') }}
+    {{ bb_card('67', 'Mass Ave/W20') }}
+    {{ weather_station_card('sp', '/get_sailing_weather', 'Sailing Pavilion') }}
+    {{ weather_station_card('gb', '/get_wunderground?id=KMACAMBR9', 'Green Building')}}
 </div>
 <!--   Row   -->
 <div class="row">
   <!--   Column   -->
   <div class="col-lg-6 mb-4">
     {% call std_card('Multimodel Forecast') %}
-      <img id="metoblue_img" src="/static/img/loading.gif">
+      <img id="metoblue_img"
+           src="/static/img/loading.gif"
+           mb_url="cambridge_united-states-of-america_4931972">
     {% endcall %}
   </div>
   <!--   Column   -->
   <div class="col-lg-6 mb-4">
     <!--   Weather card 1   -->
     {% call std_card('MA Weather Radar') %}
-      <img async-src="https://radar.weather.gov/ridge/lite/N0R/BOX_loop.gif" src="/static/img/loading.gif">
+      <img async-src="https://radar.weather.gov/ridge/lite/N0R/BOX_loop.gif"
+           src="/static/img/loading.gif">
     {% endcall %}
     <!--   Weather card 2   -->
     {% call std_card('Northeast Weather Radar') %}
-      <img async-src="https://radar.weather.gov/ridge/Conus/Loop/northeast_loop.gif" src="/static/img/loading.gif">
+      <img async-src="https://radar.weather.gov/ridge/Conus/Loop/northeast_loop.gif"
+           src="/static/img/loading.gif">
     {% endcall %}
   </div>
 </div>
