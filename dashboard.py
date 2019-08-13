@@ -6,7 +6,7 @@ import json
 from flask import Flask, render_template, request
 from werkzeug.serving import BaseRequestHandler
 from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
-                  scrape_sailing_weather
+                  scrape_sailing_weather, get_next_bus_info
 
 app = Flask(__name__)
 
@@ -18,7 +18,7 @@ def main_page():
 def get_meteoblue():
     try:
         return get_blooimage_src(request.args.get('url', ''))
-    except:
+    except Exception as e:
         # TODO: add error image
         return '/static/img/favicon-32x32.png'
 
@@ -36,6 +36,10 @@ def get_wunderground():
 @app.route('/get_sailing_weather')
 def get_sailing_weather():
     return scrape_sailing_weather()
+
+@app.route('/get_nextbus')
+def get_nextbus():
+    return get_next_bus_info(request.args.get('stopid'))
 
 @app.errorhandler(404)
 def page_not_found(e):

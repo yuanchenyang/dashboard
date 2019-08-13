@@ -5,8 +5,9 @@ from gbfs.client import GBFSClient
 
 BLUEBIKE_GBFS = 'https://gbfs.bluebikes.com/gbfs/gbfs.json'
 WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
-METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/forecast/multimodel/'
+METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
+NEXTBUS_URL = 'http://webservices.nextbus.com/service/publicJSONFeed'
 
 class GBFSStationClient(GBFSClient):
     def __init__(self, language=None, json_fetcher=None):
@@ -47,10 +48,24 @@ def scrape_sailing_weather():
                                               'daywind.png')]
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
+def get_next_bus_info(stopid):
+    j = requests.get(NEXTBUS_URL,
+                    params=dict(command='predictions',
+                                a='charles-river',
+                                stopId=stopid)
+                    ).json()
+    for p in j['predictions']:
+        if p.get('directions'):
+            break
+    return json.dumps(dict(title     = p['routeTitle'],
+                           direction = p['direction']['title'],
+                           arrivals  = [bus['minutes']
+                                        for bus in p['direction']['prediction']]))
+
 def weather_data_json(temp=0, rel_humidity=0, wind_speed=0):
-    return json.dumps({'temp'    : '{:.1f} &deg;C'.format(temp),
-                       'humidity': '{:.0f} %'.format(rel_humidity),
-                       'wind'    : '{:.0f} km/h'.format(wind_speed)})
+    return json.dumps(dict(temp    = '{:.1f}&deg;C'.format(temp),
+                           humidity= '{:.0f}%'.format(rel_humidity),
+                           wind    = '{:.0f} km/h'.format(wind_speed)))
 
 def F_to_C(f):
     return (f-32)*5/9

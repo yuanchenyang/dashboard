@@ -1,3 +1,6 @@
+JSON:
+Replace "publicXMLFeed" with "publicJSONFeed"
+
 Reference:
 https://www.nextbus.com/xmlFeedDocs/NextBusXMLFeed.pdf
 
@@ -25,7 +28,7 @@ Midday: Pacific St/Landsdowne (Inbound)
  - direction: amesmain
 
 Prediction using stop id:
-http://webservices.nextbus.com/service/publicXMLFeed?command=predictions&a=charles-river&stopId=0019
+http://webservices.nextbus.com/service/publicXMLFeed?command=predictions&a=charles-river&stopId=0091
 
 Vehicle locations:
 http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=charles-river&r=morning&t=0

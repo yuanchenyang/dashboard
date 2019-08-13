@@ -62,24 +62,45 @@
 </div>
 {% endmacro %}
 
+{% macro nextbus_card(stopid, title) %}
+<div class="card border-left-info shadow mb-4 py-2" nextbus_card_id="{{ stopid }}">
+  <div class="card-body pt-2 pb-2">
+    <div class="row no-gutters align-items-center">
+      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+        {{ title }}
+        <span id="nextbus-{{ stopid }}-title">
+        </span>
+      </div>
+    </div>
+    <div class="row no-gutters align-items-center">
+      <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
+           id="nextbus-{{ stopid }}-predictions">N.A.</div>
+      <i class="fas fa-bus-alt fa-2x text-gray-300 mr-4"></i>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
 {% block content %}
 <!--   Row   -->
 <div class="row">
   <!--   Bluebike Cards   -->
-    {{ bb_card('184', 'Sidney/Erie') }}
-    {{ bb_card('80', 'Vassar/Stata') }}
-    {{ bb_card('67', 'Mass Ave/W20') }}
-    {{ weather_station_card('sp', '/get_sailing_weather', 'Sailing Pavilion') }}
-    {{ weather_station_card('cs', '/get_wunderground?id=KMACAMBR4', 'Central Square')}}
+  {{ bb_card('184', 'Sidney/Erie') }}
+  {{ bb_card('80', 'Vassar/Stata') }}
+  {{ bb_card('67', 'Mass Ave/W20') }}
+  {{ weather_station_card('sp', '/get_sailing_weather', 'Sailing Pavilion') }}
+  {{ weather_station_card('cs', '/get_wunderground?id=KMACAMBR4', 'Central Square')}}
 </div>
 <!--   Row   -->
 <div class="row">
   <!--   Column   -->
   <div class="col-lg-6 mb-4">
-    {% call std_card('Multimodel Forecast') %}
-      <img id="metoblue_img"
+    {{ nextbus_card('19', 'Brookline/Erie') }}
+
+    {% call std_card('Forecast Meteogram') %}
+      <img id="meteoblue_img"
            src="/static/img/loading.gif"
-           mb_url="cambridge_united-states-of-america_4931972">
+           mb_url="forecast/meteograms/cambridge_united-states-of-america_4931972">
     {% endcall %}
   </div>
   <!--   Column   -->
