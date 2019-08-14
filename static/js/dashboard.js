@@ -56,9 +56,9 @@ function loadNextbus(){
               function(data) {
                   data = JSON.parse(data);
                   $('#nextbus-'+id+'-title')
-                      .text(data['title']+', ' + data['direction'] + ': ');
+                      .text(data['title']);
                   $('#nextbus-'+id+'-predictions')
-                      .text(data['arrivals'].join(', ') + ' mins');
+                      .text(data['arrivals']);
               });
     });
 }

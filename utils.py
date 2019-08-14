@@ -55,12 +55,13 @@ def get_next_bus_info(stopid):
                                 stopId=stopid)
                     ).json()
     for p in j['predictions']:
-        if p.get('directions'):
-            break
-    return json.dumps(dict(title     = p['routeTitle'],
-                           direction = p['direction']['title'],
-                           arrivals  = [bus['minutes']
-                                        for bus in p['direction']['prediction']]))
+        if p.get('direction'):
+            title = '{}, {}:'.format(p['routeTitle'], p['direction']['title'])
+            arrivals = ', '.join([bus['minutes']
+                                  for bus in p['direction']['prediction']])\
+                       + ' mins'
+            return json.dumps(dict(title=title, arrivals=arrivals))
+    return json.dumps(dict(title='(No Service)', arrivals='N.A.'))
 
 def weather_data_json(temp=0, rel_humidity=0, wind_speed=0):
     return json.dumps(dict(temp    = '{:.1f}&deg;C'.format(temp),
