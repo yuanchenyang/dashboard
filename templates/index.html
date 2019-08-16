@@ -35,7 +35,6 @@
 </div>
 {% endmacro %}
 
-
 {% macro weather_station_card(id, url, title) %}
 <div class="col-xl-3 col-md-6 mb-4"
      weather_station_card_id="{{ id }}" url="{{ url }}">
@@ -96,6 +95,7 @@
   <!--   Column   -->
   <div class="col-lg-6 mb-4">
     {{ nextbus_card('19', 'Brookline/Erie') }}
+    {{ nextbus_card('20', 'Pacific/Landsdowne') }}
 
     {% call std_card('Forecast Meteogram') %}
       <img id="meteoblue_img"
