@@ -18,7 +18,9 @@ function loadImages(){
 function loadMeteoblue(){
     var mb_img = $('#meteoblue_img');
     $.get('/get_meteoblue?url=' + mb_img.attr('mb_url'), function(data) {
-        mb_img.attr('src', data);
+        // Append time to force refresh
+        // '#' will not cause error in meteoblue's url signature check
+        mb_img.attr('src', data + '#' + new Date().getTime());
     });
 }
 
