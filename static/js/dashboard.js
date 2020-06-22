@@ -65,15 +65,20 @@ function loadNextbus(){
     });
 }
 
+function fullReload(){
+    location.reload(true);
+}
+
 $(function() {
     loadMeteoblue();
     loadImages();
     loadWeather();
     loadBluebikes();
     loadNextbus();
-    setInterval(loadMeteoblue, 30*60*1000); // Refresh every 30 minutes
-    setInterval(loadImages   , 10*60*1000); // Refresh every 10 minutes
-    setInterval(loadWeather  , 5*60*1000);  // Refresh every 5 minutes
-    setInterval(loadNextbus  , 60*1000);    // Refresh every 1 minute
-    setInterval(loadBluebikes, 30*1000);    // Refresh every 30 seconds
+    setInterval(fullReload   , 3*60*60*1000); // Full reload every 3 hours
+    setInterval(loadMeteoblue, 30*60*1000);   // Refresh every 30 minutes
+    setInterval(loadImages   , 10*60*1000);   // Refresh every 10 minutes
+    setInterval(loadWeather  , 5*60*1000);    // Refresh every 5 minutes
+    setInterval(loadNextbus  , 60*1000);      // Refresh every 1 minute
+    setInterval(loadBluebikes, 30*1000);      // Refresh every 30 seconds
 });
