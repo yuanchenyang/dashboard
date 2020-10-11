@@ -8,6 +8,7 @@ WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
 METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'http://webservices.nextbus.com/service/publicJSONFeed'
+TIMEOUT = 5
 
 class GBFSStationClient(GBFSClient):
     def __init__(self, language=None, json_fetcher=None):
@@ -28,19 +29,19 @@ COOKIES = {'precip': 'MILLIMETER',
            'temp': 'CELSIUS'}
 
 def get_blooimage_src(url):
-    res = requests.get(METEOBLUE_URL + url, headers=HEADERS, cookies=COOKIES)
+    res = requests.get(METEOBLUE_URL + url, headers=HEADERS, cookies=COOKIES, timeout=TIMEOUT)
     soup = BeautifulSoup(res.text, features="html5lib")
     return soup.find(id='blooimage').find('img')['data-original']
 
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
-    soup = BeautifulSoup(requests.get(url).text, features="html5lib")
+    soup = BeautifulSoup(requests.get(url, timeout=TIMEOUT).text, features="html5lib")
     vals = soup.find_all("span", attrs={'class': 'wu-value'})
     temp_F, humidity, wind_mph = [float(vals[i].text) for i in (0, 7, 2)]
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
 def scrape_sailing_weather():
-    soup = BeautifulSoup(requests.get(SAILING_WEATHER_URL).text,
+    soup = BeautifulSoup(requests.get(SAILING_WEATHER_URL, timeout=TIMEOUT).text,
                          features="html5lib")
     temp_F, humidity, wind_mph = [float(soup.find("a", attrs={'href': val}).text)
                                   for val in ('dayouttemphilo.png',
@@ -50,9 +51,10 @@ def scrape_sailing_weather():
 
 def get_next_bus_info(stopid):
     j = requests.get(NEXTBUS_URL,
-                    params=dict(command='predictions',
-                                a='charles-river',
-                                stopId=stopid)
+                     params=dict(command='predictions',
+                                 a='charles-river',
+                                 stopId=stopid),
+                     timeout=TIMEOUT
                     ).json()
     for p in j['predictions']:
         if p.get('direction'):
