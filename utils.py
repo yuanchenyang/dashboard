@@ -7,7 +7,7 @@ BLUEBIKE_GBFS = 'https://gbfs.bluebikes.com/gbfs/gbfs.json'
 WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
 METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
-NEXTBUS_URL = 'http://webservices.nextbus.com/service/publicJSONFeed'
+NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
 TIMEOUT = 5
 
 class GBFSStationClient(GBFSClient):
