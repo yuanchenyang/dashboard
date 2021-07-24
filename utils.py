@@ -50,19 +50,20 @@ def scrape_sailing_weather():
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
 def get_next_bus_info(stopid):
-    j = requests.get(NEXTBUS_URL,
+    res = requests.get(NEXTBUS_URL,
                      params=dict(command='predictions',
                                  a='charles-river',
                                  stopId=stopid),
                      timeout=TIMEOUT
-                    ).json()
-    for p in j['predictions']:
-        if p.get('direction'):
-            title = '{}, {}:'.format(p['routeTitle'], p['direction']['title'])
-            arrivals = ', '.join([bus['minutes']
-                                  for bus in p['direction']['prediction']])\
-                       + ' mins'
-            return json.dumps(dict(title=title, arrivals=arrivals))
+                    )
+    if res.ok:
+        for p in res.json()['predictions']:
+            if p.get('direction'):
+                title = '{}, {}:'.format(p['routeTitle'], p['direction']['title'])
+                arrivals = ', '.join([bus['minutes']
+                                      for bus in p['direction']['prediction']])\
+                           + ' mins'
+                return json.dumps(dict(title=title, arrivals=arrivals))
     return json.dumps(dict(title='(No Service)', arrivals='N.A.'))
 
 def weather_data_json(temp=0, rel_humidity=0, wind_speed=0):
