@@ -1,103 +1,25 @@
 {% extends "base.html" %}
 
-{% macro std_card(title) %}
-<div class="card shadow mb-4">
-  <div class="card-header py-3">
-    <h6 class="m-0 font-weight-bold text-primary"> {{ title }} </h6>
-  </div>
-  <div class="card-body">
-    <div class="text-center">
-      {{ caller() }}
-    </div>
-  </div>
-</div>
-{% endmacro %}
-
-{% macro bb_card(id, title) %}
-<div class="col-xl-2 col-sm-6 mb-4" bluebike_card_id="{{ id }}">
-  <div class="card border-left-primary shadow h-100 py-2">
-    <div class="card-body pt-2 pb-2">
-      <div class="row no-gutters align-items-center">
-        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-          {{ title }}
-        </div>
-      </div>
-      <div class="row no-gutters align-items-center">
-        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
-             id="bb-{{ id }}-bikes">N.A./</div>
-        <i class="fas fa-bicycle fa-2x text-gray-300 mr-4"></i>
-        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
-             id="bb-{{ id }}-docks">N.A.</div>
-        <i class="fas fa-sign-in-alt fa-2x text-gray-300 mr-2"></i>
-      </div>
-    </div>
-  </div>
-</div>
-{% endmacro %}
-
-{% macro weather_station_card(id, url, title) %}
-<div class="col-xl-3 col-md-6 mb-4"
-     weather_station_card_id="{{ id }}" url="{{ url }}">
-  <div class="card border-left-success shadow h-100 py-2">
-    <div class="card-body pt-2 pb-2">
-      <div class="row no-gutters align-items-center">
-        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-          {{ title }}
-        </div>
-      </div>
-      <div class="row no-gutters align-items-center">
-        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
-             id="ws-{{ id }}-temp">N.A.</div>
-        <i class="fas fa-thermometer-three-quarters fa-2x text-gray-300 mr-4"></i>
-        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
-             id="ws-{{ id }}-humidity">N.A.</div>
-        <i class="fas fa-tint fa-2x text-gray-300 mr-4"></i>
-        <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
-             id="ws-{{ id }}-wind">N.A.</div>
-        <i class="fas fa-wind fa-2x text-gray-300 mr-2"></i>
-      </div>
-    </div>
-  </div>
-</div>
-{% endmacro %}
-
-{% macro nextbus_card(stopid, title) %}
-<div class="card border-left-info shadow mb-4 py-2" nextbus_card_id="{{ stopid }}">
-  <div class="card-body pt-2 pb-2">
-    <div class="row no-gutters align-items-center">
-      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-        {{ title }}
-        <span id="nextbus-{{ stopid }}-title">
-        </span>
-      </div>
-    </div>
-    <div class="row no-gutters align-items-center">
-      <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
-           id="nextbus-{{ stopid }}-predictions">N.A.</div>
-      <i class="fas fa-bus-alt fa-2x text-gray-300 mr-4"></i>
-    </div>
-  </div>
-</div>
-{% endmacro %}
+{% import "cards.html" as cards %}
 
 {% block content %}
 <!--   Row   -->
 <div class="row">
   <!--   Bluebike Cards   -->
-  {{ bb_card('184', 'Sidney/Erie') }}
-  {{ bb_card('80', 'Vassar/Stata') }}
-  {{ bb_card('67', 'Mass Ave/W20') }}
-  {{ weather_station_card('sp', '/get_sailing_weather', 'Sailing Pavilion') }}
-  {{ weather_station_card('cs', '/get_wunderground?id=KMACAMBR4', 'Central Square')}}
+  {{ cards.bb('184', 'Sidney/Erie') }}
+  {{ cards.bb('80', 'Vassar/Stata') }}
+  {{ cards.bb('67', 'Mass Ave/W20') }}
+  {{ cards.weather_station('sp', '/get_sailing_weather', 'Sailing Pavilion') }}
+  {{ cards.weather_station('cs', '/get_wunderground?id=KMACAMBR4', 'Central Square')}}
 </div>
 <!--   Row   -->
 <div class="row">
   <!--   Column   -->
   <div class="col-lg-6 mb-4">
-    {{ nextbus_card('19', 'Brookline/Erie') }}
-    {{ nextbus_card('20', 'Pacific/Landsdowne') }}
+    {{ cards.nextbus('19', 'Brookline/Erie') }}
+    {{ cards.nextbus('20', 'Pacific/Landsdowne') }}
 
-    {% call std_card('Forecast Meteogram') %}
+    {% call cards.std('Forecast Meteogram') %}
       <img id="meteoblue_img"
            src="/static/img/loading.gif"
            mb_url="forecast/meteograms/cambridge_united-states-of-america_4931972">
@@ -106,12 +28,12 @@
   <!--   Column   -->
   <div class="col-lg-6 mb-4">
     <!--   Weather card 1   -->
-    {% call std_card('MA Weather Radar') %}
+    {% call cards.std('MA Weather Radar') %}
       <img async-src="https://radar.weather.gov/ridge/lite/KBOX_loop.gif"
            src="/static/img/loading.gif">
     {% endcall %}
     <!--   Weather card 2   -->
-    {% call std_card('MA Weather Forecast') %}
+    {% call cards.std('MA Weather Forecast') %}
       <img async-src="https://www.weather.gov/images/box/weatherstory.png"
            src="/static/img/loading.gif">
     {% endcall %}
