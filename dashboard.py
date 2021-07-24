@@ -6,7 +6,7 @@ import json
 from flask import Flask, render_template, request
 from werkzeug.serving import BaseRequestHandler
 from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
-                  scrape_sailing_weather, get_next_bus_info
+                  scrape_sailing_weather, get_next_bus_info, get_trash_info
 
 app = Flask(__name__)
 
@@ -40,6 +40,10 @@ def get_sailing_weather():
 @app.route('/get_nextbus')
 def get_nextbus():
     return get_next_bus_info(request.args.get('stopid'))
+
+@app.route('/get_trash')
+def get_trash():
+    return get_trash_info(request.args.get('placeid'))
 
 @app.errorhandler(404)
 def page_not_found(e):

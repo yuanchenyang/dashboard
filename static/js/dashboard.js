@@ -65,6 +65,21 @@ function loadNextbus(){
     });
 }
 
+function loadTrash(){
+    var trash = getIDByAttr('trash_card_id');
+
+    trash.forEach(function(id){
+        $.get('/get_trash?placeid='+id,
+              function(data) {
+                  data = JSON.parse(data);
+                  $('#trash-'+id+'-title').text('(' + data['title'] + ')');
+                  $('#trash-'+id+'-date').text(data['datestr']);
+                  $('#trash-'+id+'-icons').text(data['items']);
+              });
+    });
+
+}
+
 function fullReload(){
     location.reload(true);
 }
@@ -75,6 +90,7 @@ $(function() {
     loadWeather();
     loadBluebikes();
     loadNextbus();
+    loadTrash();
     setInterval(fullReload   , 3*60*60*1000); // Full reload every 3 hours
     setInterval(loadMeteoblue, 30*60*1000);   // Refresh every 30 minutes
     setInterval(loadImages   , 10*60*1000);   // Refresh every 10 minutes

@@ -1,5 +1,7 @@
 import json
 import requests
+import icalendar
+from datetime import datetime, date
 from bs4 import BeautifulSoup
 from gbfs.client import GBFSClient
 
@@ -8,6 +10,7 @@ WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
 METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
+TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics?client_id=C05A5962-E8B7-11EB-9C66-7709755F9356'
 TIMEOUT = 5
 
 class GBFSStationClient(GBFSClient):
@@ -65,6 +68,22 @@ def get_next_bus_info(stopid):
                            + ' mins'
                 return json.dumps(dict(title=title, arrivals=arrivals))
     return json.dumps(dict(title='(No Service)', arrivals='N.A.'))
+
+def get_trash_info(placeid):
+    title, datestr, items = 'N.A.', 'N.A.', 'N.A.'
+    res = requests.get(TRASH_URL.format(placeid))
+    if res.ok:
+        cal = icalendar.Calendar.from_ical(res.text)
+        title = str(cal['X-WR-CALNAME'])
+        today = date.today()
+        for event in cal.subcomponents:
+            dstr = str(event['DTSTART'].to_ical())
+            event_date = datetime.strptime(dstr, "b'%Y%m%d'").date()
+            if event_date >= today:
+                items = str(event['DESCRIPTION'])
+                datestr = event_date.strftime('%a %b %d')
+                break
+    return json.dumps(dict(title=title, datestr=datestr, items=items))
 
 def weather_data_json(temp=0, rel_humidity=0, wind_speed=0):
     return json.dumps(dict(temp    = '{:.1f}&deg;C'.format(temp),
