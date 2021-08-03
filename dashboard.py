@@ -4,9 +4,11 @@ import requests
 import json
 
 from flask import Flask, render_template, request
-from werkzeug.serving import BaseRequestHandler
+from werkzeug.serving import WSGIRequestHandler
 from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
                   scrape_sailing_weather, get_next_bus_info, get_trash_info
+
+BaseRequestHandler = WSGIRequestHandler
 
 app = Flask(__name__)
 
