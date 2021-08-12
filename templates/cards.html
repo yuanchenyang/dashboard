@@ -11,8 +11,8 @@
 </div>
 {% endmacro %}
 
-{% macro bb(id, title) %}
-<div class="col-xl-2 col-sm-6 mb-4" bluebike_card_id="{{ id }}">
+{% macro bb(id, title, size='2') %}
+<div class="col-xl-{{ size }} col-sm-6 mb-4" bluebike_card_id="{{ id }}">
   <div class="card border-left-primary shadow h-100 py-2">
     <div class="card-body pt-2 pb-2">
       <div class="row no-gutters align-items-center">

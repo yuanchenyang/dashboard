@@ -15,7 +15,7 @@ TIMEOUT = 5
 
 class GBFSStationClient(GBFSClient):
     def __init__(self, language=None, json_fetcher=None):
-        GBFSClient.__init__(self, BLUEBIKE_GBFS, language, json_fetcher)
+        GBFSClient.__init__(self, BLUEBIKE_GBFS, language=language, json_fetcher=json_fetcher)
         station_information = self.request_feed('station_information')
         self.stations = {s['station_id']: s
                          for s in station_information['data']['stations']}
