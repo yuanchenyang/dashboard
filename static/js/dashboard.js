@@ -74,10 +74,18 @@ function loadTrash(){
                   data = JSON.parse(data);
                   $('#trash-'+id+'-title').text('(' + data['title'] + ')');
                   $('#trash-'+id+'-date').text(data['datestr']);
-                  $('#trash-'+id+'-icons').text(data['items']);
+              $('#trash-'+id+'-icons').text(truncate(data['items'], 100));
               });
     });
 
+}
+
+function truncate(text, len){
+    if (text.length > len) {
+        return text.slice(0, len) + '...';
+    } else {
+        return text;
+    }
 }
 
 function fullReload(){
