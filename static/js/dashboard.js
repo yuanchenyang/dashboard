@@ -99,9 +99,9 @@ $(function() {
     loadBluebikes();
     loadNextbus();
     loadTrash();
-    setInterval(fullReload   , 3*60*60*1000); // Full reload every 3 hours
+    setInterval(fullReload   , 1*60*60*1000); // Full reload every 1 hour
     setInterval(loadMeteoblue, 30*60*1000);   // Refresh every 30 minutes
-    setInterval(loadImages   , 10*60*1000);   // Refresh every 10 minutes
+    setInterval(loadImages   , 7*60*1000);    // Refresh every 7 minutes
     setInterval(loadWeather  , 5*60*1000);    // Refresh every 5 minutes
     setInterval(loadNextbus  , 60*1000);      // Refresh every 1 minute
     setInterval(loadBluebikes, 30*1000);      // Refresh every 30 seconds
