@@ -74,7 +74,21 @@ function loadTrash(){
                   data = JSON.parse(data);
                   $('#trash-'+id+'-title').text('(' + data['title'] + ')');
                   $('#trash-'+id+'-date').text(data['datestr']);
-              $('#trash-'+id+'-icons').text(truncate(data['items'], 100));
+                  $('#trash-'+id+'-icons').text(truncate(data['items'], 35));
+              });
+    });
+
+}
+
+function loadBKB(){
+    var bkb = getIDByAttr('bkb_card_id');
+
+    bkb.forEach(function(id){
+        $.get('/get_bkb?cal_id='+id,
+              function(data) {
+                  data = JSON.parse(data);
+                  $('#bkb-'+id+'-date').text(data['datestr']);
+                  $('#bkb-'+id+'-icons').text(truncate(data['items'], 35));
               });
     });
 
@@ -99,6 +113,7 @@ $(function() {
     loadBluebikes();
     loadNextbus();
     loadTrash();
+    loadBKB();
     setInterval(fullReload   , 1*60*60*1000); // Full reload every 1 hour
     setInterval(loadMeteoblue, 30*60*1000);   // Refresh every 30 minutes
     setInterval(loadImages   , 7*60*1000);    // Refresh every 7 minutes

@@ -81,7 +81,7 @@
 {% endmacro %}
 
 {% macro trash(placeid) %}
-<div class="col-xl-6 col-md-12 mb-4" trash_card_id="{{ placeid }}">
+<div class="col-xl-3 col-md-6 mb-4" trash_card_id="{{ placeid }}">
 <div class="card border-left-info shadow h-100 py-2" >
   <div class="card-body pt-2 pb-2">
     <div class="row no-gutters align-items-center">
@@ -95,7 +95,28 @@
       <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
            id="trash-{{ placeid }}-date">N.A.</div>
       <span id="trash-{{ placeid }}-icons">
-        <i class="fas fa-bus-alt fa-2x text-gray-300 mr-4"></i>
+        <i class="fas fa-trash-alt fa-2x text-gray-300 mr-4"></i>
+      </span>
+    </div>
+  </div>
+</div>
+</div>
+{% endmacro %}
+
+{% macro bkb(loc, cal_id) %}
+<div class="col-xl-3 col-md-6 mb-4" bkb_card_id="{{ cal_id }}">
+<div class="card border-left-info shadow h-100 py-2" >
+  <div class="card-body pt-2 pb-2">
+    <div class="row no-gutters align-items-center">
+      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+        BKB {{ loc }} routesetting
+      </div>
+    </div>
+    <div class="row no-gutters align-items-center" >
+      <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
+           id="bkb-{{ cal_id }}-date">N.A.</div>
+      <span id="bkb-{{ cal_id }}-icons">
+        <i class="fas fa-bkb-alt fa-2x text-gray-300 mr-4"></i>
       </span>
     </div>
   </div>

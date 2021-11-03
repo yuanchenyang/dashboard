@@ -1,3 +1,4 @@
+import re
 import json
 import requests
 import icalendar
@@ -11,6 +12,7 @@ METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
 TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics?client_id=C05A5962-E8B7-11EB-9C66-7709755F9356'
+BKB_CAL_URL = 'https://widgets.mindbodyonline.com/widgets/schedules/{}/load_markup?options%5Bstart_date%5D={}'
 TIMEOUT = 5
 
 class GBFSStationClient(GBFSClient):
@@ -71,10 +73,10 @@ def get_next_bus_info(stopid):
 
 def get_trash_info(placeid):
     title, datestr, items = 'N.A.', 'N.A.', 'N.A.'
-    res = requests.get(TRASH_URL.format(placeid))
+    res = requests.get(TRASH_URL.format(placeid), timeout=TIMEOUT)
     if res.ok:
         cal = icalendar.Calendar.from_ical(res.text)
-        title = str(cal['X-WR-CALNAME'])
+        title = str(cal['X-WR-CALNAME']).split(',')[0]
         today = date.today()
         for event in cal.subcomponents:
             dstr = str(event['DTSTART'].to_ical())
@@ -84,6 +86,25 @@ def get_trash_info(placeid):
                 datestr = event_date.strftime('%a %b %d')
                 break
     return json.dumps(dict(title=title, datestr=datestr, items=items))
+
+def get_bkb_routesetting(cal_id):
+    datestr, items = 'N.A.', 'N.A.'
+    today = datetime.now().strftime('%F')
+    res = requests.get(BKB_CAL_URL.format(cal_id, today), timeout=TIMEOUT)
+    soup = BeautifulSoup(json.loads(res.text)['class_sessions'], 'lxml')
+    for day in soup.select('[class=bw-widget__day]'):
+        dt_str = day.select('time[class=hc_starttime]')[0].attrs['datetime']
+        sessions = [format_session(s.text.strip())
+                    for s in day.select('[class=bw-session__name]')
+                    if 'Setting' in s.text]
+        if len(sessions) > 0:
+            datestr = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M').date().strftime('%a %b %d')
+            items = ', '.join(sessions)
+            break
+    return json.dumps(dict(datestr=datestr, items=items))
+
+def format_session(session):
+    return re.match('^Setting - (.*)$', session).groups()[0]
 
 def weather_data_json(temp=0, rel_humidity=0, wind_speed=0):
     return json.dumps(dict(temp    = '{:.1f}&deg;C'.format(temp),

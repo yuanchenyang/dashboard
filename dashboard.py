@@ -6,7 +6,8 @@ import json
 from flask import Flask, render_template, request
 from werkzeug.serving import WSGIRequestHandler
 from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
-                  scrape_sailing_weather, get_next_bus_info, get_trash_info
+                  scrape_sailing_weather, get_next_bus_info, get_trash_info,\
+                  get_bkb_routesetting
 
 BaseRequestHandler = WSGIRequestHandler
 
@@ -46,6 +47,10 @@ def get_nextbus():
 @app.route('/get_trash')
 def get_trash():
     return get_trash_info(request.args.get('placeid'))
+
+@app.route('/get_bkb')
+def get_bkb():
+    return get_bkb_routesetting(request.args.get('cal_id'))
 
 @app.errorhandler(404)
 def page_not_found(e):
