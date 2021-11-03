@@ -91,7 +91,7 @@ def get_bkb_routesetting(cal_id):
     datestr, items = 'N.A.', 'N.A.'
     today = datetime.now().strftime('%F')
     res = requests.get(BKB_CAL_URL.format(cal_id, today), timeout=TIMEOUT)
-    soup = BeautifulSoup(json.loads(res.text)['class_sessions'], 'lxml')
+    soup = BeautifulSoup(json.loads(res.text)['class_sessions'], features="html5lib")
     for day in soup.select('[class=bw-widget__day]'):
         dt_str = day.select('time[class=hc_starttime]')[0].attrs['datetime']
         sessions = [format_session(s.text.strip())
