@@ -35,19 +35,19 @@ COOKIES = {'precip': 'MILLIMETER',
 
 def get_blooimage_src(url):
     res = requests.get(METEOBLUE_URL + url, headers=HEADERS, cookies=COOKIES, timeout=TIMEOUT)
-    soup = BeautifulSoup(res.text, features="html5lib")
+    soup = BeautifulSoup(res.text, "lxml")
     return soup.find(id='blooimage').find('img')['data-original']
 
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
-    soup = BeautifulSoup(requests.get(url, timeout=TIMEOUT).text, features="html5lib")
+    soup = BeautifulSoup(requests.get(url, timeout=TIMEOUT).text, "lxml")
     vals = soup.find_all("span", attrs={'class': 'wu-value'})
     temp_F, humidity, wind_mph = [float(vals[i].text) for i in (0, 7, 2)]
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
 def scrape_sailing_weather():
     soup = BeautifulSoup(requests.get(SAILING_WEATHER_URL, timeout=TIMEOUT).text,
-                         features="html5lib")
+                         "lxml")
     temp_F, humidity, wind_mph = [float(soup.find("a", attrs={'href': val}).text)
                                   for val in ('dayouttemphilo.png',
                                               'dayouthum.png',
@@ -91,7 +91,7 @@ def get_bkb_routesetting(cal_id):
     datestr, items = 'N.A.', 'N.A.'
     today = datetime.now().strftime('%F')
     res = requests.get(BKB_CAL_URL.format(cal_id, today), timeout=TIMEOUT)
-    soup = BeautifulSoup(json.loads(res.text)['class_sessions'], features="html5lib")
+    soup = BeautifulSoup(json.loads(res.text)['class_sessions'], "lxml")
     for day in soup.select('[class=bw-widget__day]'):
         dt_str = day.select('time[class=hc_starttime]')[0].attrs['datetime']
         sessions = [format_session(s.text.strip())
