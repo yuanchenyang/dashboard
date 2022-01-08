@@ -1,4 +1,5 @@
 flask
+Flask-Caching
 requests
 beautifulsoup4
 lxml
