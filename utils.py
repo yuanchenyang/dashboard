@@ -14,6 +14,7 @@ NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservi
 TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics?client_id=C05A5962-E8B7-11EB-9C66-7709755F9356'
 BKB_CAL_URL = 'https://widgets.mindbodyonline.com/widgets/schedules/{}/load_markup?options%5Bstart_date%5D={}'
 TIMEOUT = 5
+METEOBLUE_TIMEOUT = 10
 
 class GBFSStationClient(GBFSClient):
     def __init__(self, language=None, json_fetcher=None):
@@ -34,7 +35,7 @@ COOKIES = {'precip': 'MILLIMETER',
            'temp': 'CELSIUS'}
 
 def get_blooimage_src(url):
-    res = requests.get(METEOBLUE_URL + url, headers=HEADERS, cookies=COOKIES, timeout=TIMEOUT)
+    res = requests.get(METEOBLUE_URL + url, headers=HEADERS, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT)
     soup = BeautifulSoup(res.text, "lxml")
     return soup.find(id='blooimage').find('img')['data-original']
 
