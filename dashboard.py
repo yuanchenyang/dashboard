@@ -23,7 +23,16 @@ cache = Cache(app)
 
 @app.route('/')
 def main_page():
-    return render_template("index.html")
+    return render_template("126_charles.html")
+
+@app.route('/322')
+def main_page_322():
+    return render_template("322_western.html")
+
+@app.route('/214')
+def main_page_214():
+    return render_template("214_brookline.html")
+
 
 @app.route('/get_meteoblue')
 @cache.cached(timeout=5*60)

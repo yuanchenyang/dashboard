@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% import "cards.html" as cards %}
+
+{% block content %}
+<!--   Row   -->
+<div class="row">
+  <!--   Bluebike Cards   -->
+  {{ cards.bb('87', 'Putnam/Peabody Terrace') }}
+  {{ cards.bb('17', 'Soldiers Field Park') }}
+  {{ cards.bb('139', 'Dana Park') }}
+
+  {{ cards.weather_station('sp', '/get_sailing_weather', 'Sailing Pavilion') }}
+  {{ cards.weather_station('cs', '/get_wunderground?id=KMACAMBR4', 'Central Square')}}
+</div>
+
+<!--   Row   -->
+<div class="row">
+  <!--  {{ cards.nextbus('19', 'Brookline/Erie') }} -->
+  <!-- {{ cards.nextbus('20', 'Pacific/Landsdowne') }} -->
+  {{ cards.bb('68', 'Central Square') }}
+  {{ cards.bb('80', 'Vassar/Stata') }}
+  {{ cards.bb('67', 'Mass Ave/W20') }}
+  {{ cards.bkb('somerville', '144578') }}
+  {{ cards.trash('BDE6A7D0-DAA5-11E8-9006-DB7ADAB7354B---C05A5962-E8B7-11EB-9C66-7709755F9356') }}
+</div>
+
+<!--   Row   -->
+<div class="row">
+  <!--   Column   -->
+  <div class="col-lg-6 mb-4">
+    {% call cards.std('Forecast Meteogram') %}
+      <img id="meteoblue_img"
+           src="/static/img/loading.gif"
+           mb_url="forecast/meteograms/cambridge_united-states-of-america_4931972">
+    {% endcall %}
+  </div>
+  <!--   Column   -->
+  <div class="col-lg-6 mb-4">
+    <!--   Weather card 1   -->
+    {% call cards.std('MA Weather Radar') %}
+      <img async-src="https://radar.weather.gov/ridge/lite/KBOX_loop.gif"
+           src="/static/img/loading.gif">
+    {% endcall %}
+    <!--   Weather card 2   -->
+    {% call cards.std('MA Weather Forecast') %}
+      <img async-src="https://www.weather.gov/images/box/weatherstory.png"
+           src="/static/img/loading.gif">
+    {% endcall %}
+  </div>
+</div>
+{% endblock %}
