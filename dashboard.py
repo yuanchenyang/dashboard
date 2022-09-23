@@ -69,7 +69,8 @@ def get_nextbus():
 @app.route('/get_trash')
 @cache.cached(timeout=10*60)
 def get_trash():
-    return get_trash_info(request.args.get('placeid'))
+    return get_trash_info(request.args.get('placeid'),
+                          request.args.get('clientid'))
 
 @app.route('/get_bkb')
 @cache.cached(timeout=10*60)

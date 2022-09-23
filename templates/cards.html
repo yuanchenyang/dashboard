@@ -80,21 +80,21 @@
 </div>
 {% endmacro %}
 
-{% macro trash(placeid) %}
-<div class="col-xl-3 col-md-6 mb-4" trash_card_id="{{ placeid }}">
+{% macro trash(id) %}
+<div class="col-xl-3 col-md-6 mb-4" trash_card_id="{{ id }}">
 <div class="card border-left-info shadow h-100 py-2" >
   <div class="card-body pt-2 pb-2">
     <div class="row no-gutters align-items-center">
       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
         Trash collection
-        <span id="trash-{{ placeid }}-title">
+        <span id="trash-{{ id }}-title">
         </span>
       </div>
     </div>
     <div class="row no-gutters align-items-center" >
       <div class="h5 mb-0 mr-2 font-weight-bold text-gray-800"
-           id="trash-{{ placeid }}-date">N.A.</div>
-      <span id="trash-{{ placeid }}-icons">
+           id="trash-{{ id }}-date">N.A.</div>
+      <span id="trash-{{ id }}-icons">
         <i class="fas fa-trash-alt fa-2x text-gray-300 mr-4"></i>
       </span>
     </div>

@@ -11,7 +11,7 @@ WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
 METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
-TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics?client_id=C05A5962-E8B7-11EB-9C66-7709755F9356'
+TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics?client_id={}'
 BKB_CAL_URL = 'https://widgets.mindbodyonline.com/widgets/schedules/{}/load_markup?options%5Bstart_date%5D={}'
 TIMEOUT = 5
 METEOBLUE_TIMEOUT = 10
@@ -72,9 +72,9 @@ def get_next_bus_info(stopid):
                 return json.dumps(dict(title=title, arrivals=arrivals))
     return json.dumps(dict(title='(No Service)', arrivals='N.A.'))
 
-def get_trash_info(placeid):
+def get_trash_info(placeid, clientid):
     title, datestr, items = 'N.A.', 'N.A.', 'N.A.'
-    res = requests.get(TRASH_URL.format(placeid), timeout=TIMEOUT)
+    res = requests.get(TRASH_URL.format(placeid, clientid), timeout=TIMEOUT)
     if res.ok:
         cal = icalendar.Calendar.from_ical(res.text)
         title = str(cal['X-WR-CALNAME']).split(',')[0]
