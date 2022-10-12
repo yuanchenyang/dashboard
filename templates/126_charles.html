@@ -29,10 +29,16 @@
 <div class="row">
   <!--   Column   -->
   <div class="col-lg-6 mb-4">
+    <!--   Meteoblue card   -->
     {% call cards.std('Forecast Meteogram') %}
       <img id="meteoblue_img"
            src="/static/img/loading.gif"
            mb_url="forecast/meteograms/cambridge_united-states-of-america_4931972">
+    {% endcall %}
+    <!--   Weather card   -->
+    {% call cards.std('MA Weather Forecast') %}
+      <img async-src="https://www.weather.gov/images/box/weatherstory.png"
+           src="/static/img/loading.gif">
     {% endcall %}
   </div>
   <!--   Column   -->
@@ -43,8 +49,8 @@
            src="/static/img/loading.gif">
     {% endcall %}
     <!--   Weather card 2   -->
-    {% call cards.std('MA Weather Forecast') %}
-      <img async-src="https://www.weather.gov/images/box/weatherstory.png"
+    {% call cards.std('Northeast Weather Radar') %}
+      <img async-src="https://radar.weather.gov/ridge/standard/NORTHEAST_loop.gif"
            src="/static/img/loading.gif">
     {% endcall %}
   </div>
