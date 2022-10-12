@@ -11,7 +11,7 @@ WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
 METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
-TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics?client_id={}'
+TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics'
 BKB_CAL_URL = 'https://widgets.mindbodyonline.com/widgets/schedules/{}/load_markup?options%5Bstart_date%5D={}'
 TIMEOUT = 5
 METEOBLUE_TIMEOUT = 10
@@ -72,20 +72,20 @@ def get_next_bus_info(stopid):
                 return json.dumps(dict(title=title, arrivals=arrivals))
     return json.dumps(dict(title='(No Service)', arrivals='N.A.'))
 
-def get_trash_info(placeid, clientid):
+def get_trash_info(placeid):
     title, datestr, items = 'N.A.', 'N.A.', 'N.A.'
-    res = requests.get(TRASH_URL.format(placeid, clientid), timeout=TIMEOUT)
-    if res.ok:
-        cal = icalendar.Calendar.from_ical(res.text)
-        title = str(cal['X-WR-CALNAME']).split(',')[0]
-        today = date.today()
-        for event in cal.subcomponents:
-            dstr = str(event['DTSTART'].to_ical())
-            event_date = datetime.strptime(dstr, "b'%Y%m%d'").date()
-            if event_date >= today:
-                items = str(event['DESCRIPTION'])
-                datestr = event_date.strftime('%a %b %d')
-                break
+    res = requests.get(TRASH_URL.format(placeid), timeout=TIMEOUT)
+    #if res.ok:
+    cal = icalendar.Calendar.from_ical(res.text)
+    title = str(cal['X-WR-CALNAME']).split(',')[0]
+    today = date.today()
+    for event in cal.subcomponents:
+        dstr = str(event['DTSTART'].to_ical())
+        event_date = datetime.strptime(dstr, "b'%Y%m%d'").date()
+        if event_date >= today:
+            items = str(event['DESCRIPTION'])
+            datestr = event_date.strftime('%a %b %d')
+            break
     return json.dumps(dict(title=title, datestr=datestr, items=items))
 
 def get_bkb_routesetting(cal_id):

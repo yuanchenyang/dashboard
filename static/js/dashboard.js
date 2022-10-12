@@ -69,8 +69,7 @@ function loadTrash(){
     var trash = getIDByAttr('trash_card_id');
 
     trash.forEach(function(id){
-        var ids = id.split('---');
-        $.get('/get_trash?placeid='+ids[0]+'&clientid='+ids[1],
+        $.get('/get_trash?placeid='+id,
               function(data) {
                   data = JSON.parse(data);
                   $('#trash-'+id+'-title').text('(' + data['title'] + ')');
