@@ -75,17 +75,17 @@ def get_next_bus_info(stopid):
 def get_trash_info(placeid):
     title, datestr, items = 'N.A.', 'N.A.', 'N.A.'
     res = requests.get(TRASH_URL.format(placeid), timeout=TIMEOUT)
-    #if res.ok:
-    cal = icalendar.Calendar.from_ical(res.text)
-    title = str(cal['X-WR-CALNAME']).split(',')[0]
-    today = date.today()
-    for event in cal.subcomponents:
-        dstr = str(event['DTSTART'].to_ical())
-        event_date = datetime.strptime(dstr, "b'%Y%m%d'").date()
-        if event_date >= today:
-            items = str(event['DESCRIPTION'])
-            datestr = event_date.strftime('%a %b %d')
-            break
+    if res.ok:
+        cal = icalendar.Calendar.from_ical(res.text)
+        title = str(cal['X-WR-CALNAME']).split(',')[0]
+        today = date.today()
+        for event in cal.subcomponents:
+            dstr = str(event['DTSTART'].to_ical())
+            event_date = datetime.strptime(dstr, "b'%Y%m%d'").date()
+            if event_date >= today:
+                items = str(event['DESCRIPTION'])
+                datestr = event_date.strftime('%a %b %d')
+                break
     return json.dumps(dict(title=title, datestr=datestr, items=items))
 
 def get_bkb_routesetting(cal_id):

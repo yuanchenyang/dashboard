@@ -33,9 +33,8 @@ def main_page_322():
 def main_page_214():
     return render_template("214_brookline.html")
 
-
 @app.route('/get_meteoblue')
-@cache.cached(timeout=5*60)
+@cache.cached(timeout=5*60, query_string=True)
 def get_meteoblue():
     try:
         return get_blooimage_src(request.args.get('url', ''))
@@ -44,7 +43,7 @@ def get_meteoblue():
         return '/static/img/favicon-32x32.png'
 
 @app.route('/get_bluebikes')
-@cache.cached(timeout=10)
+@cache.cached(timeout=10, query_string=True)
 def get_bluebikes():
     client = GBFSStationClient()
     stations = client.get_stations()
@@ -52,27 +51,27 @@ def get_bluebikes():
     return json.dumps({i: stations[i] for i in requested})
 
 @app.route('/get_wunderground')
-@cache.cached(timeout=30)
+@cache.cached(timeout=30, query_string=True)
 def get_wunderground():
     return scrape_wunderground(request.args.get('id'))
 
 @app.route('/get_sailing_weather')
-@cache.cached(timeout=30)
+@cache.cached(timeout=30, query_string=True)
 def get_sailing_weather():
     return scrape_sailing_weather()
 
 @app.route('/get_nextbus')
-@cache.cached(timeout=30)
+@cache.cached(timeout=30, query_string=True)
 def get_nextbus():
     return get_next_bus_info(request.args.get('stopid'))
 
 @app.route('/get_trash')
-@cache.cached(timeout=10*60)
+@cache.cached(timeout=10*60, query_string=True)
 def get_trash():
     return get_trash_info(request.args.get('placeid'))
 
 @app.route('/get_bkb')
-@cache.cached(timeout=10*60)
+@cache.cached(timeout=10*60, query_string=True)
 def get_bkb():
     return get_bkb_routesetting(request.args.get('cal_id'))
 
