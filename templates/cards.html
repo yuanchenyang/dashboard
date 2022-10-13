@@ -11,6 +11,21 @@
 </div>
 {% endmacro %}
 
+{% macro img(title, url) %}
+  {% call std(title) %}
+    <img async-src="{{ url }}"
+         src="/static/img/loading.gif">
+  {% endcall %}
+{% endmacro %}
+
+{% macro mb_img(title, url) %}
+  {% call std(title) %}
+    <img class="meteoblue_img"
+         src="/static/img/loading.gif"
+         mb_url="{{ url }}">
+  {% endcall %}
+{% endmacro %}
+
 {% macro bb(id, title, size='2') %}
 <div class="col-xl-{{ size }} col-sm-6 mb-4" bluebike_card_id="{{ id }}">
   <div class="card border-left-primary shadow h-100 py-2">
