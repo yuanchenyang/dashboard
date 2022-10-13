@@ -62,11 +62,31 @@
       <!-- End of Main Content -->
 
       <!-- Footer -->
-      <footer class="sticky-footer bg-white">
+      <footer class="navbar sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
-            <span> &copy; 2019-2022 Chenyang Yuan </span>
+            <span> Copyright &copy; 2019-2022 Chenyang Yuan </span>
           </div>
+
+
+          <li class="nav-item dropup" style="list-style:none">
+            <a class="nav-link dropdown-toggle text-gray-600" href="#" id="addressDropdown"
+               role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="mr-2 d-none d-sm-inline text-gray-600 small">
+                {{ page.name|e }}
+              </span>
+            </a>
+            <!-- Dropdown - Page Selection-->
+            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                 aria-labelledby="pageDropdown">
+              {% for p in all_pages %}
+                <a page_id="{{ p.id }}" class="dropdown-item{{' active' if p.id == page.id else '' }}" href="#">
+                  {{ p.name|e }}
+                </a>
+              {% endfor %}
+            </div>
+          </li>
+
         </div>
       </footer>
       <!-- End of Footer -->

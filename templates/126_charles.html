@@ -1,8 +1,3 @@
-{% extends "base.html" %}
-
-{% import "cards.html" as cards %}
-
-{% block content %}
 <!--   Row   -->
 <div class="row">
   <!--   Bluebike Cards   -->
@@ -36,7 +31,7 @@
            mb_url="forecast/meteograms/cambridge_united-states-of-america_4931972">
     {% endcall %}
     <!--   Weather card   -->
-    {% call cards.std('MA Weather Forecast') %}
+    {% call cards.std('MA Weather Info') %}
       <img async-src="https://www.weather.gov/images/box/weatherstory.png"
            src="/static/img/loading.gif">
     {% endcall %}
@@ -55,4 +50,3 @@
     {% endcall %}
   </div>
 </div>
-{% endblock %}

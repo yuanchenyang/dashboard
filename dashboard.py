@@ -3,35 +3,56 @@ import argparse
 import requests
 import json
 
-from flask import Flask, render_template, request
+from collections import namedtuple
+from flask import Flask, render_template, request, make_response, url_for
 from flask_caching import Cache
 from werkzeug.serving import WSGIRequestHandler
+
 from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
                   scrape_sailing_weather, get_next_bus_info, get_trash_info,\
                   get_bkb_routesetting
 
 BaseRequestHandler = WSGIRequestHandler
 
-config = dict(CACHE_TYPE="FileSystemCache",
+config = dict(CACHE_TYPE='FileSystemCache',
               CACHE_DEFAULT_TIMEOUT=300,
               CACHE_THRESHOLD=10000,
-              CACHE_DIR="./cache")
+              CACHE_DIR='./cache')
 
 app = Flask(__name__)
 app.config.from_mapping(config)
 cache = Cache(app)
 
+Page = namedtuple('Page', ['name', 'id', 'template_name'])
+
+available_pages = [Page('126 Charles St', 'charles126', '126_charles.html'),
+                   Page('322 Western Ave', 'western322', '322_western.html'),
+                   Page('214 Brookline St', 'brookline214', '214_brookline.html'),
+                   ]
+
+def get_page(page_id):
+    for page in available_pages:
+        if page.id == page_id:
+            return page
+    return available_pages[0]
+
+def default_page_id():
+    available_pages[0].id
+
 @app.route('/')
 def main_page():
-    return render_template("126_charles.html")
+    page = get_page(request.cookies.get('page_id'))
+    all_pages = available_pages
+    return render_template('index.html', **locals())
 
-@app.route('/322')
-def main_page_322():
-    return render_template("322_western.html")
-
-@app.route('/214')
-def main_page_214():
-    return render_template("214_brookline.html")
+@app.route('/set_page', methods=['POST'])
+def set_page():
+    print(request.form.get('page_id'))
+    res = make_response("")
+    res.set_cookie("page_id",
+                   request.form.get('page_id', default_page_id()),
+                   samesite='Strict')
+    return res
 
 @app.route('/get_meteoblue')
 @cache.cached(timeout=5*60, query_string=True)
@@ -79,5 +100,5 @@ def get_bkb():
 def page_not_found(e):
     return render_template('404.html'), 404
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80)

@@ -4,6 +4,17 @@ function getIDByAttr(attr){
     }).get();
 }
 
+function loadPageSwitcher(){
+    $('[page_id]').each(function() {
+        $(this).click(function(){
+            $.post('/set_page', {'page_id':$(this).attr('page_id')},
+                   function (){
+                       window.location.replace('/');
+                  });
+        });
+    });
+}
+
 function loadImages(){
     var date = new Date();
     $('img[async-src]').each(
@@ -107,6 +118,7 @@ function fullReload(){
 }
 
 $(function() {
+    loadPageSwitcher();
     loadMeteoblue();
     loadImages();
     loadWeather();
