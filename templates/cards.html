@@ -55,7 +55,7 @@
 
 {% macro mtn_forecast(title, url) %}
   {% call std(title) %}
-    <iframe class="w-100 mf" height="600px" src="http://localhost:5000/get_mf?url={{ url }}"></iframe>
+    <iframe class="w-100 mf" height="600px" src="/get_mf?url={{ url }}"></iframe>
   {% endcall %}
 {% endmacro %}
 
