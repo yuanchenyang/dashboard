@@ -13,6 +13,7 @@ SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
 TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics'
 BKB_CAL_URL = 'https://widgets.mindbodyonline.com/widgets/schedules/{}/load_markup?options%5Bstart_date%5D={}'
+MF_URL = 'https://www.mountain-forecast.com/peaks/{}'
 TIMEOUT = 5
 METEOBLUE_TIMEOUT = 10
 
@@ -103,6 +104,13 @@ def get_bkb_routesetting(cal_id):
             items = ', '.join(sessions)
             break
     return json.dumps(dict(datestr=datestr, items=items))
+
+def get_mf_table(url):
+    soup = BeautifulSoup(requests.get(MF_URL.format(url), headers=HEADERS).text)
+    html_rel = str(soup.find('div', class_='forecast-table__table-wrapper'))
+    html_abs = html_rel.replace('src="/', 'src="https://www.mountain-forecast.com/')\
+                       .replace('/images/mtn_fl_clear.jpg', 'https://www.mountain-forecast.com/images/mtn_fl_clear.jpg')
+    return html_abs
 
 def format_session(session):
     return re.match('^Setting - (.*)$', session).groups()[0]

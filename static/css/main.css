@@ -13,3 +13,13 @@ img {
     padding-right: 0.75rem;
     padding-left: 0.75rem;
 }
+
+.carousel-inner .carousel-item {
+  transition: -webkit-transform 0s linear;
+  transition: transform 0s linear;
+  transition: transform 0s linear, -webkit-transform 0s linear;
+}
+
+iframe {
+    border:none;
+}

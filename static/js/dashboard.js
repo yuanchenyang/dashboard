@@ -40,13 +40,15 @@ function loadMeteoblue(){
 function loadBluebikes(){
     var stations = getIDByAttr('bluebike_card_id');
 
-    $.get('/get_bluebikes?station_ids=' + stations.join(','), function(data) {
-        data = JSON.parse(data);
-        stations.forEach(function (e) {
-            $('#bb-'+ e + '-bikes').text(data[e]['num_bikes_available']);
-            $('#bb-'+ e + '-docks').text(data[e]['num_docks_available']);
+    if (stations.length > 0) {
+        $.get('/get_bluebikes?station_ids=' + stations.join(','), function(data) {
+            data = JSON.parse(data);
+            stations.forEach(function (e) {
+                $('#bb-'+ e + '-bikes').text(data[e]['num_bikes_available']);
+                $('#bb-'+ e + '-docks').text(data[e]['num_docks_available']);
+            });
         });
-    });
+    }
 }
 
 function loadWeather(){
@@ -106,7 +108,6 @@ function loadBKB(){
     });
 
 }
-
 function truncate(text, len){
     if (text.length > len) {
         return text.slice(0, len) + '...';
@@ -134,4 +135,5 @@ $(function() {
     setInterval(loadWeather  , 5*60*1000);    // Refresh every 5 minutes
     setInterval(loadNextbus  , 60*1000);      // Refresh every 1 minute
     setInterval(loadBluebikes, 30*1000);      // Refresh every 30 seconds
+
 });

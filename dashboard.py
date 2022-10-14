@@ -10,7 +10,7 @@ from werkzeug.serving import WSGIRequestHandler
 
 from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
                   scrape_sailing_weather, get_next_bus_info, get_trash_info,\
-                  get_bkb_routesetting
+                  get_bkb_routesetting, get_mf_table
 
 BaseRequestHandler = WSGIRequestHandler
 
@@ -28,6 +28,7 @@ Page = namedtuple('Page', ['name', 'id', 'template_name'])
 available_pages = [Page('126 Charles St', 'charles126', '126_charles.html'),
                    Page('322 Western Ave', 'western322', '322_western.html'),
                    Page('214 Brookline St', 'brookline214', '214_brookline.html'),
+                   Page('Northeast Climbing', 'ne-climbing', 'ne_climbing.html'),
                    ]
 
 def get_page(page_id):
@@ -53,6 +54,11 @@ def set_page():
                    request.form.get('page_id', default_page_id()),
                    samesite='Strict')
     return res
+
+@app.route('/get_mf')
+def get_mf():
+    forecast_html = get_mf_table(request.args.get('url', ''))
+    return render_template('mf.html', forecast_html=forecast_html)
 
 @app.route('/get_meteoblue')
 @cache.cached(timeout=5*60, query_string=True)
@@ -98,7 +104,9 @@ def get_bkb():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    page = get_page(request.cookies.get('page_id'))
+    all_pages = available_pages
+    return render_template('404.html', **locals()), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
