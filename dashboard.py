@@ -42,7 +42,10 @@ def default_page_id():
 
 @app.route('/')
 def main_page():
-    page = get_page(request.cookies.get('page_id'))
+    page_id = request.args.get('page_id',      # First choice
+              request.cookies.get('page_id',   # Second choice
+              default_page_id()))              # Fallback
+    page = get_page(page_id)
     all_pages = available_pages
     return render_template('index.html', **locals())
 
@@ -56,6 +59,7 @@ def set_page():
     return res
 
 @app.route('/get_mf')
+@cache.cached(timeout=10*60, query_string=True)
 def get_mf():
     forecast_html = get_mf_table(request.args.get('url', ''))
     return render_template('mf.html', forecast_html=forecast_html)
