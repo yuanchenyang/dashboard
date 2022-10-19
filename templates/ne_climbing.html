@@ -1,32 +1,75 @@
-<!--   Row   -->
 <div class="row">
-  <!--   Column   -->
+  {{ cards.weather_station('rumney', '/get_wunderground?id=KNHRUMNE13', 'Rumney, NH')}}
+  {{ cards.weather_station('nconway', '/get_wunderground?id=KNHCONWA16', 'North Conway, NH')}}
+  {{ cards.weather_station('erving', '/get_wunderground?id=KMAERVIN9', 'Erving, MA (Farley, Rose Ledge)')}}
+  {{ cards.weather_station('sandisfield', '/get_wunderground?id=KMAMONTE5', 'Sandisfield, MA (Hanging Mountain)')}}
+</div>
+
+<div class="row">
+  {{ cards.weather_station('new-britain', '/get_wunderground?id=KCTNEWBR35', 'New Britain, CT (Ragged Mountain)')}}
+  {{ cards.weather_station('gunks', '/get_wunderground?id=KNYNEWPA71', 'New Paltz, NY (Gunks)')}}
+</div>
+
+<div class="row">
   <div class="col-lg-6 mb-4">
     {{ cards.mb_img('Rumney Meteogram', 'forecast/meteograms/rumney_united-states_5091981') }}
-    {{ cards.mb_img('North Conway Meteogram', 'forecast/meteograms/north-conway_united-states_5090347') }}
-    {{ cards.mb_img('Gunks Meteogram', 'forecast/meteograms/shawangunk-mountains_united-states_5137827') }}
+  </div>
+  <!--   Column   -->
+  <div class="col-lg-6 mb-4">
+    {{ cards.mtn_forecast('Washington Forcast', 'Mount-Washington-2/forecasts/1917') }}
+  </div>
+</div>
 
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.mb_img('North Conway Meteogram', 'forecast/meteograms/north-conway_united-states_5090347') }}
+  </div>
+  <div class="col-lg-6 mb-4">
+    {{ cards.mtn_forecast('Cannon Forcast', 'Cannon-Mountain-New-Hampshire/forecasts/1250') }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.mb_img('Erving Meteogram', 'forecast/meteograms/erving_united-states_4935939') }}
+  </div>
+  <div class="col-lg-6 mb-4">
+    {{ cards.img('Northeast Weather Radar', 'https://radar.weather.gov/ridge/standard/NORTHEAST_loop.gif') }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.mb_img('Sandisfield Meteogram', 'forecast/meteograms/sandisfield_united-states_4950205') }}
+  </div>
+  <div class="col-lg-6 mb-4">
+    {{ cards.imgs('prec-carousel', 'Precipitation',
+                  'https://assets.weather-forecast.com/maps/static/UnitedStates.prec.{}.cc23.jpg',
+                  range(6,73,6))
+    }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.mb_img('New Britain Meteogram', 'forecast/meteograms/new-britain_united-states_4839292') }}
+  </div>
+  <div class="col-lg-6 mb-4">
     {{ cards.imgs('wind-carousel', 'Wind',
                   'https://assets.weather-forecast.com/maps/static/UnitedStates.wind.{}.cc23.jpg',
                   range(6,73,6))
     }}
   </div>
-  <!--   Column   -->
+</div>
+
+<div class="row">
   <div class="col-lg-6 mb-4">
-
-    {{ cards.mtn_forecast('Washington Forcast', 'Mount-Washington-2/forecasts/1917') }}
-    {{ cards.mtn_forecast('Cannon Forcast', 'Cannon-Mountain-New-Hampshire/forecasts/1250') }}
-
-    {{ cards.imgs('prec-carousel', 'Precipitation',
-                  'https://assets.weather-forecast.com/maps/static/UnitedStates.prec.{}.cc23.jpg',
-                  range(6,73,6))
-    }}
-
+    {{ cards.mb_img('Gunks Meteogram', 'forecast/meteograms/shawangunk-mountains_united-states_5137827') }}
+  </div>
+  <div class="col-lg-6 mb-4">
     {{ cards.imgs('cloud-cover-carousel', 'Cloud Cover',
                   'https://assets.weather-forecast.com/maps/static/UnitedStates.cloud.{}.cc23.jpg',
                   range(6,73,6))
     }}
-
-
   </div>
 </div>
