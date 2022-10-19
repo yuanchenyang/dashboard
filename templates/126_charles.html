@@ -1,4 +1,3 @@
-<!--   Row   -->
 <div class="row">
   <!--   Bluebike Cards   -->
   {{ cards.bb('185', 'Third at Binney') }}
@@ -9,7 +8,6 @@
   {{ cards.weather_station('cs', '/get_wunderground?id=KMACAMBR4', 'Central Square')}}
 </div>
 
-<!--   Row   -->
 <div class="row">
   {{ cards.bb('91', 'One Kendall Square') }}
   {{ cards.bb('80', 'Vassar/Stata') }}
@@ -18,16 +16,19 @@
   {{ cards.trash('E9F8DE2E-DAA5-11E8-A3C9-DB7ADAB7354B') }}
 </div>
 
-<!--   Row   -->
 <div class="row">
-  <!--   Column   -->
   <div class="col-lg-6 mb-4">
     {{ cards.mb_img('Forecast Meteogram', 'forecast/meteograms/cambridge_united-states-of-america_4931972') }}
-    {{ cards.img('MA Weather Info', 'https://www.weather.gov/images/box/weatherstory.png') }}
   </div>
-  <!--   Column   -->
   <div class="col-lg-6 mb-4">
     {{ cards.img('MA Weather Radar', 'https://radar.weather.gov/ridge/standard/KBOX_loop.gif') }}
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.img('MA Weather Info', 'https://www.weather.gov/images/box/weatherstory.png') }}
+  </div>
+  <div class="col-lg-6 mb-4">
     {{ cards.img('Northeast Weather Radar', 'https://radar.weather.gov/ridge/standard/NORTHEAST_loop.gif') }}
   </div>
 </div>
