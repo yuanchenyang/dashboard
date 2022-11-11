@@ -38,7 +38,7 @@ COOKIES = {'precip': 'MILLIMETER',
 def get_blooimage_src(url):
     res = requests.get(METEOBLUE_URL + url, headers=HEADERS, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT)
     soup = BeautifulSoup(res.text, "lxml")
-    return soup.find(id='blooimage').find('img')['data-original']
+    return soup.find('a', {'download' : True})['href']
 
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
