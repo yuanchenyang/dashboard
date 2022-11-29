@@ -8,7 +8,7 @@ from gbfs.client import GBFSClient
 
 BLUEBIKE_GBFS = 'https://gbfs.bluebikes.com/gbfs/gbfs.json'
 WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
-METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/'
+METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/forecast/meteogramweb/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
 TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics'
@@ -36,9 +36,9 @@ COOKIES = {'precip': 'MILLIMETER',
            'temp': 'CELSIUS'}
 
 def get_blooimage_src(url):
-    res = requests.get(METEOBLUE_URL + url, headers=HEADERS, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT)
-    soup = BeautifulSoup(res.text, "lxml")
-    return soup.find('a', {'download' : True})['href']
+    res = requests.get(METEOBLUE_URL + url, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT)
+    soup = BeautifulSoup(res.text)
+    return soup.find('img', class_='diagram')['src']
 
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
