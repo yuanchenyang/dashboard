@@ -14,7 +14,7 @@ NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservi
 TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics'
 BKB_CAL_URL = 'https://widgets.mindbodyonline.com/widgets/schedules/{}/load_markup?options%5Bstart_date%5D={}'
 MF_URL = 'https://www.mountain-forecast.com/peaks/{}'
-TIMEOUT = 5
+TIMEOUT = 10
 METEOBLUE_TIMEOUT = 10
 
 class GBFSStationClient(GBFSClient):
@@ -43,8 +43,11 @@ def get_blooimage_src(url):
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
     soup = BeautifulSoup(requests.get(url, timeout=TIMEOUT).text, "lxml")
+    def get_wu_text(class_id):
+        return soup.find(class_=class_id).find("span", attrs={'class': 'wu-value'}).text
     vals = soup.find_all("span", attrs={'class': 'wu-value'})
-    temp_F, humidity, wind_mph = [float(vals[i].text) for i in (0, 7, 2)]
+    temp_F, humidity, wind_mph = [float(get_wu_text(id)) for id in
+                                  ('main-temp', 'wu-unit-humidity', 'weather__wind-gust')]
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
 def scrape_sailing_weather():
