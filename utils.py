@@ -21,12 +21,12 @@ class GBFSStationClient(GBFSClient):
     def __init__(self, language=None, json_fetcher=None):
         GBFSClient.__init__(self, BLUEBIKE_GBFS, language=language, json_fetcher=json_fetcher)
         station_information = self.request_feed('station_information')
-        self.stations = {s['station_id']: s
+        self.stations = {s['legacy_id']: s
                          for s in station_information['data']['stations']}
 
     def get_stations(self):
         for s in self.request_feed('station_status')['data']['stations']:
-            self.stations[s['station_id']].update(s)
+            self.stations[s['legacy_id']].update(s)
         return self.stations
 
 # Use this otherwise webpage returns browser unsupported error
