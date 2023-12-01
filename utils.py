@@ -110,7 +110,7 @@ def get_bkb_routesetting(cal_id):
 
 def get_mf_table(url):
     soup = BeautifulSoup(requests.get(MF_URL.format(url), headers=HEADERS).text)
-    html_rel = str(soup.find('div', class_='forecast-table__table-wrapper'))
+    html_rel = str(soup.find('div', class_='forecast-table'))
     html_abs = html_rel.replace('src="/', 'src="https://www.mountain-forecast.com/')\
                        .replace('/images/mtn_fl_clear.jpg', 'https://www.mountain-forecast.com/images/mtn_fl_clear.jpg')
     return html_abs

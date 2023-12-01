@@ -9,20 +9,21 @@
     fclayout.largeUp = (window.innerWidth >= 948);
   }
 }).call(this);</script>
-  <link rel="stylesheet" media="screen, print" href="https://www.mountain-forecast.com/assets/application-0598d1d0186f5cb3caacaf9119e64a7351ca82dfdca5cc986ecd930121f1fa54.css" />
-  <link rel="stylesheet" media="screen" href="https://www.mountain-forecast.com/packs/css/application-0884b804.css" />
+
+  <link rel="stylesheet" media="screen, print" href="https://www.mountain-forecast.com/assets/application-c973345a202bb89ca5e3d881651dc68054e115cb08c84df49d6f786c2937ad0e.css" />
+  <link rel="stylesheet" media="screen" href="https://www.mountain-forecast.com/packs/css/application-1a085ea9.css" />
 
   <script>function _typeof(t){return(_typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t})(t)}!function(){var t=function(){var t,e,o=[],n=window,r=n;for(;r;){try{if(r.frames.__tcfapiLocator){t=r;break}}catch(t){}if(r===n.top)break;r=n.parent}t||(!function t(){var e=n.document,o=!!n.frames.__tcfapiLocator;if(!o)if(e.body){var r=e.createElement("iframe");r.style.cssText="display:none",r.name="__tcfapiLocator",e.body.appendChild(r)}else setTimeout(t,5);return!o}(),n.__tcfapi=function(){for(var t=arguments.length,n=new Array(t),r=0;r<t;r++)n[r]=arguments[r];if(!n.length)return o;"setGdprApplies"===n[0]?n.length>3&&2===parseInt(n[1],10)&&"boolean"==typeof n[3]&&(e=n[3],"function"==typeof n[2]&&n[2]("set",!0)):"ping"===n[0]?"function"==typeof n[2]&&n[2]({gdprApplies:e,cmpLoaded:!1,cmpStatus:"stub"}):o.push(n)},n.addEventListener("message",(function(t){var e="string"==typeof t.data,o={};if(e)try{o=JSON.parse(t.data)}catch(t){}else o=t.data;var n="object"===_typeof(o)?o.__tcfapiCall:null;n&&window.__tcfapi(n.command,n.version,(function(o,r){var a={__tcfapiReturn:{returnValue:o,success:r,callId:n.callId}};t&&t.source&&t.source.postMessage&&t.source.postMessage(e?JSON.stringify(a):a,"*")}),n.parameter)}),!1))};"undefined"!=typeof module?module.exports=t:t()}();</script>
 
     <script>(function () { var e = false; var c = window; var t = document; function r() { if (!c.frames["__uspapiLocator"]) { if (t.body) { var a = t.body; var e = t.createElement("iframe"); e.style.cssText = "display:none"; e.name = "__uspapiLocator"; a.appendChild(e) } else { setTimeout(r, 5) } } } r(); function p() { var a = arguments; __uspapi.a = __uspapi.a || []; if (!a.length) { return __uspapi.a } else if (a[0] === "ping") { a[2]({ gdprAppliesGlobally: e, cmpLoaded: false }, true) } else { __uspapi.a.push([].slice.apply(a)) } } function l(t) { var r = typeof t.data === "string"; try { var a = r ? JSON.parse(t.data) : t.data; if (a.__cmpCall) { var n = a.__cmpCall; c.__uspapi(n.command, n.parameter, function (a, e) { var c = { __cmpReturn: { returnValue: a, success: e, callId: n.callId } }; t.source.postMessage(r ? JSON.stringify(c) : c, "*") }) } } catch (a) { } } if (typeof __uspapi !== "function") { c.__uspapi = p; __uspapi.msgHandler = l; c.addEventListener("message", l, false) } })();
 </script>
 
-     <script type="text/javascript"><!--
-    var uj_funcs = [];
-    var height_units = 'm';
-    var imperial = false;
-    //-->
-  </script>
+     <script type="text/javascript">
+       var uj_funcs = [];
+       var height_units = 'm';
+       var imperial = false;
+
+     </script>
 
       <style type="text/css">
         @media only screen and (min-width: 0px) and (min-height: 0px) {
@@ -68,25 +69,42 @@
     my.elevation = 1250;
     my.forecastMode = "normal";
   </script>
-    <style type="text/css">
+
+        <style type="text/css">
         @media only screen and (min-width: 0px) and (min-height: 0px) {
-            .bn-placeholder-1, .bn-placeholder-1.bn-placeholder-vcentered {
-              display: none;
+            .bn-placeholder-0, .bn-placeholder-0.bn-placeholder-vcentered {
+                display: flex;
+                min-width: 100%;
+                min-height: 83.333vw;
             }
-            .bn-placeholder-visual.bn-placeholder-1:after, .bn-placeholder-visual.bn-placeholder-1.bn-placeholder-vcentered:after {
-              display: none;
+            .bn-placeholder-visual.bn-placeholder-0:after, .bn-placeholder-visual.bn-placeholder-0.bn-placeholder-vcentered:after {
+              display: flex;
+                min-width: 100%;
+                margin-left: -50%;
             }
         }
-        @media only screen and (min-width: 1357px) and (min-height: 0px) {
-            .bn-placeholder-1, .bn-placeholder-1.bn-placeholder-vcentered {
-                display: block;
-                min-width: min(100%, 300px);
-                min-height: 600px;
+        @media only screen and (min-width: 728px) and (min-height: 1px) {
+            .bn-placeholder-0, .bn-placeholder-0.bn-placeholder-vcentered {
+                display: flex;
+                min-width: min(100%, 728px);
+                min-height: 90px;
             }
-            .bn-placeholder-visual.bn-placeholder-1:after, .bn-placeholder-visual.bn-placeholder-1.bn-placeholder-vcentered:after {
+            .bn-placeholder-visual.bn-placeholder-0:after, .bn-placeholder-visual.bn-placeholder-0.bn-placeholder-vcentered:after {
               display: flex;
-                min-width: min(100%, 300px);
-                margin-left: max(-150px, -50%);
+                min-width: min(100%, 728px);
+                margin-left: max(-364px, -50%);
+            }
+        }
+        @media only screen and (min-width: 970px) and (min-height: 1px) {
+            .bn-placeholder-0, .bn-placeholder-0.bn-placeholder-vcentered {
+                display: flex;
+                min-width: min(100%, 970px);
+                min-height: 250px;
+            }
+            .bn-placeholder-visual.bn-placeholder-0:after, .bn-placeholder-visual.bn-placeholder-0.bn-placeholder-vcentered:after {
+              display: flex;
+                min-width: min(100%, 970px);
+                margin-left: max(-485px, -50%);
             }
         }
     </style>
@@ -97,8 +115,8 @@
 
 <main class="main-content">
 
-  <div class="c-container is-fluid" id="insert_forecast_table">
-    <div class="forecast-table">
+  <div class="c-container is-fluid is-flex-c forecast-content">
+    <div class="forecast-content__main">
       {{ forecast_html|safe }}
     </div>
   </div>
