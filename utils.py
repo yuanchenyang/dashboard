@@ -26,7 +26,8 @@ class GBFSStationClient(GBFSClient):
 
     def get_stations(self):
         for s in self.request_feed('station_status')['data']['stations']:
-            self.stations[s['legacy_id']].update(s)
+            if 'legacy_id' in s:
+                self.stations[s['legacy_id']].update(s)
         return self.stations
 
 # Use this otherwise webpage returns browser unsupported error
