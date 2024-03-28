@@ -39,7 +39,7 @@ COOKIES = {'precip': 'MILLIMETER',
 def get_blooimage_src(url):
     res = requests.get(METEOBLUE_URL + url, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT)
     soup = BeautifulSoup(res.text)
-    return soup.find('img', class_='diagram')['src']
+    return soup.find('div', id='blooimage')['data-href']
 
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
