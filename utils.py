@@ -8,7 +8,7 @@ from gbfs.client import GBFSClient
 
 BLUEBIKE_GBFS = 'https://gbfs.bluebikes.com/gbfs/gbfs.json'
 WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
-METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/forecast/meteogramweb/'
+METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/forecast/meteogramone/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
 TRASH_URL = 'https://recollect.a.ssl.fastly.net/api/places/{}/services/761/events.en-US.ics'
