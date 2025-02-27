@@ -1,0 +1,60 @@
+<div class="row">
+  <!--   Weather Cards   -->
+  {{ cards.weather_station('cs', '/get_wunderground?id=KMACAMBR138', 'Central Square')}}
+  {{ cards.weather_station('sp', '/get_sailing_weather', 'Sailing Pavilion') }}
+
+  {{ cards.weather_station('er', '/get_wunderground?id=KCTNEWHA72', 'East Rock')}}
+  {{ cards.weather_station('wh', '/get_wunderground?id=KCTWESTH84', 'West Haven')}}
+</div>
+
+<div class="row">
+  {{ cards.bb('91', 'One Kendall Square') }}
+  {{ cards.bb('80', 'Vassar/Stata') }}
+  {{ cards.bb('68', 'Central Square') }}
+  {{ cards.bkb('somerville', '144578') }}
+  {{ cards.trash('E9F8DE2E-DAA5-11E8-A3C9-DB7ADAB7354B') }}
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.mb_img('Cambridge Meteogram', 'cambridge_united-states-of-america_4931972') }}
+  </div>
+  <div class="col-lg-6 mb-4">
+    {{ cards.mb_img('New Haven Meteogram', 'new-haven_united-states_4839366') }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.img('MA Weather Radar', 'https://radar.weather.gov/ridge/standard/KBOX_loop.gif') }}
+  </div>
+  <div class="col-lg-6 mb-4">
+    {{ cards.img('CT Weather Radar', 'https://radar.weather.gov/ridge/standard/KOKX_loop.gif') }}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.img('MA Weather Info', 'https://www.weather.gov/images/box/weatherstory.png') }}
+  </div>
+  <div class="col-lg-6 mb-4">
+    {{ cards.img('CT Weather Info', 'https://www.weather.gov/images/okx/weatherstory.png') }}
+  </div>
+
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    {{ cards.imgs('precip-forecast', 'Northeast Precipitation Potential',
+    'https://graphical.weather.gov/GraphicalNDFD.php?width=515&timezone=EST&sector=NORTHEAST&element=ppi&n={}',
+    range(0,30,1))
+    }}
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    {{ cards.imgs('temp-forecast', 'Northeast Apparent Temperature',
+    'https://graphical.weather.gov/GraphicalNDFD.php?width=515&timezone=EST&sector=NORTHEAST&element=apparentt&n={}',
+    range(0,30,1))
+    }}
+  </div>
+</div>

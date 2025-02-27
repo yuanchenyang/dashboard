@@ -25,7 +25,8 @@ cache = Cache(app)
 
 Page = namedtuple('Page', ['name', 'id', 'template_name'])
 
-available_pages = [Page('126 Charles St', 'charles126', '126_charles.html'),
+available_pages = [Page('Cambridge + New Haven', 'cam_nh', 'cambridge_new_haven.html'),
+                   Page('126 Charles St', 'charles126', '126_charles.html'),
                    Page('322 Western Ave', 'western322', '322_western.html'),
                    Page('214 Brookline St', 'brookline214', '214_brookline.html'),
                    Page('Northeast Climbing', 'ne-climbing', 'ne_climbing.html'),
