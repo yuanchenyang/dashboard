@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from gbfs.client import GBFSClient
 
 BLUEBIKE_GBFS = 'https://gbfs.bluebikes.com/gbfs/gbfs.json'
-WUNDERGROUND_URL = 'https://www.wunderground.com/dashboard/pws'
+WUNDERGROUND_URL = 'https://www.wunderground.com/weather'
 METEOBLUE_URL = 'https://www.meteoblue.com/en/weather/forecast/meteogramone/'
 SAILING_WEATHER_URL = 'http://sailing.mit.edu/weather/'
 NEXTBUS_URL = 'https://retro.umoiq.com/service/publicJSONFeed'#'https://webservices.nextbus.com/service/publicJSONFeed'
@@ -45,10 +45,14 @@ def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
     soup = BeautifulSoup(requests.get(url, timeout=TIMEOUT).text, "lxml")
     def get_wu_text(class_id):
-        return soup.find(class_=class_id).find("span", attrs={'class': 'wu-value'}).text
+        try:
+            return soup.find(class_=class_id).find("span", attrs={'class': 'wu-value'}).text
+        except Exception as e:
+            print(e)
+            return None
     vals = soup.find_all("span", attrs={'class': 'wu-value'})
-    temp_F, humidity, wind_mph = [float(get_wu_text(id)) for id in
-                                  ('main-temp', 'wu-unit-humidity', 'weather__wind-gust')]
+    temp_F, humidity, wind_mph = [get_wu_text(id) for id in
+                                  ('current-temp', 'wu-unit-humidity', 'wu-unit-speed')]
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
 def scrape_sailing_weather():
@@ -120,12 +124,14 @@ def format_session(session):
     return re.match('^Setting - (.*)$', session).groups()[0]
 
 def weather_data_json(temp=0, rel_humidity=0, wind_speed=0):
-    return json.dumps(dict(temp    = '{:.1f}&deg;C'.format(temp),
-                           humidity= '{:.0f}%'.format(rel_humidity),
-                           wind    = '{:.0f} km/h'.format(wind_speed)))
+    return json.dumps(dict(temp    = 'N/A' if temp is None else f'{temp:.1f}&deg;C',
+                           humidity= 'N/A' if rel_humidity is None else f'{float(rel_humidity):.0f}%',
+                           wind    = 'N/A' if wind_speed is None else f'{wind_speed:.0f} km/h'))
 
 def F_to_C(f):
-    return (f-32)*5/9
+    if f is not None:
+        return (float(f)-32)*5/9
 
 def mi_to_km(mi):
-    return mi * 1.609344
+    if mi is not None:
+        return float(mi) * 1.609344
