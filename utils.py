@@ -37,13 +37,16 @@ COOKIES = {'precip': 'MILLIMETER',
            'temp': 'CELSIUS'}
 
 def get_blooimage_src(url):
-    res = requests.get(METEOBLUE_URL + url, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT)
-    soup = BeautifulSoup(res.text)
-    return soup.find('div', id='blooimage')['data-href']
+    with requests.get(METEOBLUE_URL + url, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT) as res:
+        soup = BeautifulSoup(res.text, 'lxml')
+    img_url = soup.find('div', id='blooimage')['data-href']
+    soup.decompose()
+    return img_url
 
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
-    soup = BeautifulSoup(requests.get(url, timeout=TIMEOUT).text, "lxml")
+    with requests.get(url, timeout=TIMEOUT) as res:
+        soup = BeautifulSoup(res.text, "lxml")
     def get_wu_text(class_id):
         try:
             return soup.find(class_=class_id).find("span", attrs={'class': 'wu-value'}).text
@@ -53,55 +56,55 @@ def scrape_wunderground(station_id):
     vals = soup.find_all("span", attrs={'class': 'wu-value'})
     temp_F, humidity, wind_mph = [get_wu_text(id) for id in
                                   ('current-temp', 'wu-unit-humidity', 'wu-unit-speed')]
+    soup.decompose()
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
 def scrape_sailing_weather():
-    soup = BeautifulSoup(requests.get(SAILING_WEATHER_URL, timeout=TIMEOUT).text,
-                         "lxml")
+    with requests.get(SAILING_WEATHER_URL, timeout=TIMEOUT) as res:
+        soup = BeautifulSoup(res.text, "lxml")
     temp_F, humidity, wind_mph = [float(soup.find("a", attrs={'href': val}).text)
                                   for val in ('dayouttemphilo.png',
                                               'dayouthum.png',
                                               'daywind.png')]
+    soup.decompose()
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
 def get_next_bus_info(stopid):
-    res = requests.get(NEXTBUS_URL,
-                     params=dict(command='predictions',
-                                 a='charles-river',
-                                 stopId=stopid),
-                     timeout=TIMEOUT
-                    )
-    if res.ok:
-        for p in res.json()['predictions']:
-            if p.get('direction'):
-                title = '{}, {}:'.format(p['routeTitle'], p['direction']['title'])
-                arrivals = ', '.join([bus['minutes']
-                                      for bus in p['direction']['prediction']])\
-                           + ' mins'
-                return json.dumps(dict(title=title, arrivals=arrivals))
-    return json.dumps(dict(title='(No Service)', arrivals='N.A.'))
+    params = dict(command='predictions',
+                  a='charles-river',
+                  stopId=stopid)
+    with requests.get(NEXTBUS_URL, params=params, timeout=TIMEOUT) as res:
+        if res.ok:
+            for p in res.json()['predictions']:
+                if p.get('direction'):
+                    title = '{}, {}:'.format(p['routeTitle'], p['direction']['title'])
+                    arrivals = ', '.join([bus['minutes']
+                                          for bus in p['direction']['prediction']])\
+                               + ' mins'
+                    return json.dumps(dict(title=title, arrivals=arrivals))
+        return json.dumps(dict(title='(No Service)', arrivals='N.A.'))
 
 def get_trash_info(placeid):
     title, datestr, items = 'N.A.', 'N.A.', 'N.A.'
-    res = requests.get(TRASH_URL.format(placeid), timeout=TIMEOUT)
-    if res.ok:
-        cal = icalendar.Calendar.from_ical(res.text)
-        title = str(cal['X-WR-CALNAME']).split(',')[0]
-        today = date.today()
-        for event in cal.subcomponents:
-            dstr = str(event['DTSTART'].to_ical())
-            event_date = datetime.strptime(dstr, "b'%Y%m%d'").date()
-            if event_date >= today:
-                items = str(event['DESCRIPTION'])
-                datestr = event_date.strftime('%a %b %d')
-                break
-    return json.dumps(dict(title=title, datestr=datestr, items=items))
+    with requests.get(TRASH_URL.format(placeid), timeout=TIMEOUT) as res:
+        if res.ok:
+            cal = icalendar.Calendar.from_ical(res.text)
+            title = str(cal['X-WR-CALNAME']).split(',')[0]
+            today = date.today()
+            for event in cal.subcomponents:
+                dstr = str(event['DTSTART'].to_ical())
+                event_date = datetime.strptime(dstr, "b'%Y%m%d'").date()
+                if event_date >= today:
+                    items = str(event['DESCRIPTION'])
+                    datestr = event_date.strftime('%a %b %d')
+                    break
+        return json.dumps(dict(title=title, datestr=datestr, items=items))
 
 def get_bkb_routesetting(cal_id):
     datestr, items = 'N.A.', 'N.A.'
     today = datetime.now().strftime('%F')
-    res = requests.get(BKB_CAL_URL.format(cal_id, today), timeout=TIMEOUT)
-    soup = BeautifulSoup(json.loads(res.text)['class_sessions'], "lxml")
+    with requests.get(BKB_CAL_URL.format(cal_id, today), timeout=TIMEOUT) as res:
+        soup = BeautifulSoup(json.loads(res.text)['class_sessions'], "lxml")
     for day in soup.select('[class=bw-widget__day]'):
         dt_str = day.select('time[class=hc_starttime]')[0].attrs['datetime']
         sessions = [format_session(s.text.strip())
@@ -111,13 +114,16 @@ def get_bkb_routesetting(cal_id):
             datestr = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M').date().strftime('%a %b %d')
             items = ', '.join(sessions)
             break
+    soup.decompose()
     return json.dumps(dict(datestr=datestr, items=items))
 
 def get_mf_table(url):
-    soup = BeautifulSoup(requests.get(MF_URL.format(url), headers=HEADERS).text)
+    with requests.get(MF_URL.format(url), headers=HEADERS) as res:
+        soup = BeautifulSoup(res.text, 'lxml')
     html_rel = str(soup.find('div', class_='forecast-table'))
     html_abs = html_rel.replace('src="/', 'src="https://www.mountain-forecast.com/')\
                        .replace('/images/mtn_fl_clear.jpg', 'https://www.mountain-forecast.com/images/mtn_fl_clear.jpg')
+    soup.decompose()
     return html_abs
 
 def format_session(session):
