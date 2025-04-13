@@ -39,7 +39,7 @@ COOKIES = {'precip': 'MILLIMETER',
 def get_blooimage_src(url):
     with requests.get(METEOBLUE_URL + url, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT) as res:
         soup = BeautifulSoup(res.text, 'lxml')
-    img_url = soup.find('div', id='blooimage')['data-href']
+    img_url = str(soup.find('div', id='blooimage')['data-href'])
     soup.decompose()
     return img_url
 
@@ -49,7 +49,7 @@ def scrape_wunderground(station_id):
         soup = BeautifulSoup(res.text, "lxml")
     def get_wu_text(class_id):
         try:
-            return soup.find(class_=class_id).find("span", attrs={'class': 'wu-value'}).text
+            return str(soup.find(class_=class_id).find("span", attrs={'class': 'wu-value'}).text)
         except Exception as e:
             print(e)
             return None
@@ -106,8 +106,8 @@ def get_bkb_routesetting(cal_id):
     with requests.get(BKB_CAL_URL.format(cal_id, today), timeout=TIMEOUT) as res:
         soup = BeautifulSoup(json.loads(res.text)['class_sessions'], "lxml")
     for day in soup.select('[class=bw-widget__day]'):
-        dt_str = day.select('time[class=hc_starttime]')[0].attrs['datetime']
-        sessions = [format_session(s.text.strip())
+        dt_str = str(day.select('time[class=hc_starttime]')[0].attrs['datetime'])
+        sessions = [format_session(str(s.text).strip())
                     for s in day.select('[class=bw-session__name]')
                     if 'Setting' in s.text]
         if len(sessions) > 0:
