@@ -16,6 +16,7 @@ BKB_CAL_URL = 'https://widgets.mindbodyonline.com/widgets/schedules/{}/load_mark
 MF_URL = 'https://www.mountain-forecast.com/peaks/{}'
 TIMEOUT = 10
 METEOBLUE_TIMEOUT = 10
+PARSER = 'html.parser'
 
 class GBFSStationClient(GBFSClient):
     def __init__(self, language=None, json_fetcher=None):
@@ -38,7 +39,7 @@ COOKIES = {'precip': 'MILLIMETER',
 
 def get_blooimage_src(url):
     with requests.get(METEOBLUE_URL + url, cookies=COOKIES, timeout=METEOBLUE_TIMEOUT) as res:
-        soup = BeautifulSoup(res.text, 'lxml')
+        soup = BeautifulSoup(res.text, PARSER)
     img_url = str(soup.find('div', id='blooimage')['data-href'])
     soup.decompose()
     return img_url
@@ -46,7 +47,7 @@ def get_blooimage_src(url):
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
     with requests.get(url, timeout=TIMEOUT) as res:
-        soup = BeautifulSoup(res.text, "lxml")
+        soup = BeautifulSoup(res.text, PARSER)
     def get_wu_text(class_id):
         try:
             return str(soup.find(class_=class_id).find("span", attrs={'class': 'wu-value'}).text)
@@ -61,7 +62,7 @@ def scrape_wunderground(station_id):
 
 def scrape_sailing_weather():
     with requests.get(SAILING_WEATHER_URL, timeout=TIMEOUT) as res:
-        soup = BeautifulSoup(res.text, "lxml")
+        soup = BeautifulSoup(res.text, PARSER)
     temp_F, humidity, wind_mph = [float(soup.find("a", attrs={'href': val}).text)
                                   for val in ('dayouttemphilo.png',
                                               'dayouthum.png',
@@ -104,7 +105,7 @@ def get_bkb_routesetting(cal_id):
     datestr, items = 'N.A.', 'N.A.'
     today = datetime.now().strftime('%F')
     with requests.get(BKB_CAL_URL.format(cal_id, today), timeout=TIMEOUT) as res:
-        soup = BeautifulSoup(json.loads(res.text)['class_sessions'], "lxml")
+        soup = BeautifulSoup(json.loads(res.text)['class_sessions'], PARSER)
     for day in soup.select('[class=bw-widget__day]'):
         dt_str = str(day.select('time[class=hc_starttime]')[0].attrs['datetime'])
         sessions = [format_session(str(s.text).strip())
@@ -119,7 +120,7 @@ def get_bkb_routesetting(cal_id):
 
 def get_mf_table(url):
     with requests.get(MF_URL.format(url), headers=HEADERS) as res:
-        soup = BeautifulSoup(res.text, 'lxml')
+        soup = BeautifulSoup(res.text, PARSER)
     html_rel = str(soup.find('div', class_='forecast-table'))
     html_abs = html_rel.replace('src="/', 'src="https://www.mountain-forecast.com/')\
                        .replace('/images/mtn_fl_clear.jpg', 'https://www.mountain-forecast.com/images/mtn_fl_clear.jpg')
