@@ -45,6 +45,28 @@
   {% endcall %}
 {% endmacro %}
 
+{% macro nws_carousel(id, title, wfo) %}
+  {% call std(title) %}
+    <div id="{{ id }}" class="carousel slide nws_carousel" data-bs-ride="carousel"
+         data-ride="carousel" nws_wfo="{{ wfo }}">
+      <ol class="carousel-indicators"></ol>
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img src="/static/img/loading.gif" class="d-inline h-75">
+        </div>
+      </div>
+      <a class="carousel-control-prev" href="#{{ id }}" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next" href="#{{ id }}" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+  {% endcall %}
+{% endmacro %}
+
 {% macro mb_img(title, url) %}
   {% call std(title) %}
     <img class="meteoblue_img"

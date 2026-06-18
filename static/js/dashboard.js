@@ -26,6 +26,36 @@ function loadImages(){
     );
 }
 
+function buildNWSCarousel(carousel, urls){
+    //* (Re)build a Bootstrap carousel from the list of active weather story
+    //* image URLs returned by /get_weatherstory.
+    var id = carousel.attr('id');
+    var date = new Date().getTime();
+    var indicators = '', items = '';
+    urls.forEach(function(url, i){
+        indicators += '<li data-target="#' + id + '" data-slide-to="' + i + '"'
+                    + (i === 0 ? ' class="active"' : '') + '></li>';
+        items += '<div class="carousel-item' + (i === 0 ? ' active' : '') + '">'
+               + '<img src="' + url + '?_=' + date + '" class="d-inline h-75">'
+               + '</div>';
+    });
+    if (carousel.data('bs.carousel')) { carousel.carousel('dispose'); }
+    carousel.children('.carousel-indicators').html(indicators);
+    carousel.children('.carousel-inner').html(items);
+    carousel.carousel();
+}
+
+function loadNWS(){
+    //* Each NWS card shows the weather story slideshow currently on the office's
+    //* front page (graphics rotate between WeatherStoryN.png).
+    $('.nws_carousel').each(function() {
+        var carousel = $(this);
+        $.getJSON('/get_weatherstory?wfo=' + carousel.attr('nws_wfo'), function(urls) {
+            if (urls && urls.length) { buildNWSCarousel(carousel, urls); }
+        });
+    });
+}
+
 function loadMeteoblue(){
     $('img.meteoblue_img').each(function() {
         var mb_img = $(this);
@@ -123,6 +153,7 @@ function fullReload(){
 $(function() {
     loadPageSwitcher();
     loadMeteoblue();
+    loadNWS();
     loadImages();
     loadWeather();
     loadBluebikes();
@@ -131,6 +162,7 @@ $(function() {
     loadBKB();
     setInterval(fullReload   , 1*60*60*1000); // Full reload every 1 hour
     setInterval(loadMeteoblue, 30*60*1000);   // Refresh every 30 minutes
+    setInterval(loadNWS      , 10*60*1000);   // Refresh every 10 minutes
     setInterval(loadImages   , 7*60*1000);    // Refresh every 7 minutes
     setInterval(loadWeather  , 5*60*1000);    // Refresh every 5 minutes
     setInterval(loadNextbus  , 60*1000);      // Refresh every 1 minute

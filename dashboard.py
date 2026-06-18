@@ -10,7 +10,7 @@ from werkzeug.serving import WSGIRequestHandler
 
 from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
                   scrape_sailing_weather, get_next_bus_info, get_trash_info,\
-                  get_bkb_routesetting, get_mf_table
+                  get_bkb_routesetting, get_mf_table, get_nws_weatherstory
 
 BaseRequestHandler = WSGIRequestHandler
 
@@ -62,8 +62,12 @@ def set_page():
 @app.route('/get_mf')
 @cache.cached(timeout=10*60, query_string=True)
 def get_mf():
-    forecast_html = get_mf_table(request.args.get('url', ''))
-    return render_template('mf.html', forecast_html=forecast_html)
+    return render_template('mf.html', **get_mf_table(request.args.get('url', '')))
+
+@app.route('/get_weatherstory')
+@cache.cached(timeout=10*60, query_string=True)
+def get_weatherstory():
+    return json.dumps(get_nws_weatherstory(request.args.get('wfo', '')))
 
 @app.route('/get_meteoblue')
 @cache.cached(timeout=5*60, query_string=True)
