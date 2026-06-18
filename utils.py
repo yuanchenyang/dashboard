@@ -3,7 +3,7 @@ import json
 import requests
 import icalendar
 from datetime import datetime, date
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, SoupStrainer
 from gbfs.client import GBFSClient
 
 BLUEBIKE_GBFS = 'https://gbfs.bluebikes.com/gbfs/gbfs.json'
@@ -17,6 +17,9 @@ MF_URL = 'https://www.mountain-forecast.com/peaks/{}'
 TIMEOUT = 10
 METEOBLUE_TIMEOUT = 10
 PARSER = 'html.parser'
+WUNDERGROUND_PARSER = 'lxml'
+WUNDERGROUND_VALUE_CLASSES = ('current-temp', 'wu-unit-humidity', 'wu-unit-speed')
+WUNDERGROUND_PARSE_ONLY = SoupStrainer(class_=WUNDERGROUND_VALUE_CLASSES)
 
 class GBFSStationClient(GBFSClient):
     def __init__(self, language=None, json_fetcher=None):
@@ -47,16 +50,16 @@ def get_blooimage_src(url):
 def scrape_wunderground(station_id):
     url = '{}/{}'.format(WUNDERGROUND_URL, station_id)
     with requests.get(url, timeout=TIMEOUT) as res:
-        soup = BeautifulSoup(res.text, PARSER)
+        soup = BeautifulSoup(res.text, WUNDERGROUND_PARSER,
+                             parse_only=WUNDERGROUND_PARSE_ONLY)
     def get_wu_text(class_id):
         try:
             return str(soup.find(class_=class_id).find("span", attrs={'class': 'wu-value'}).text)
         except Exception as e:
             print(e)
             return None
-    vals = soup.find_all("span", attrs={'class': 'wu-value'})
     temp_F, humidity, wind_mph = [get_wu_text(id) for id in
-                                  ('current-temp', 'wu-unit-humidity', 'wu-unit-speed')]
+                                  WUNDERGROUND_VALUE_CLASSES]
     soup.decompose()
     return weather_data_json(F_to_C(temp_F), humidity, mi_to_km(wind_mph))
 
