@@ -9,10 +9,8 @@ from tests.page_endpoints import assert_endpoint_payload, endpoints_from_page
 pytestmark = [
     pytest.mark.live,
     pytest.mark.skipif(
-        os.environ.get('RUN_LIVE_ENDPOINT_TESTS') != '1' or
-        not os.environ.get('WEATHER_API_KEY'),
-        reason=('set RUN_LIVE_ENDPOINT_TESTS=1 and WEATHER_API_KEY to call '
-                'external services'),
+        os.environ.get('RUN_LIVE_ENDPOINT_TESTS') != '1',
+        reason='set RUN_LIVE_ENDPOINT_TESTS=1 to call external services',
     ),
 ]
 

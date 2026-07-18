@@ -28,6 +28,19 @@ class FakeResponse:
     def json(self):
         return self.json_data
 
+    def iter_content(self, chunk_size):
+        for offset in range(0, len(self.content), chunk_size):
+            yield self.content[offset:offset + chunk_size]
+
+
+@pytest.fixture
+def pws_key_cache(monkeypatch, tmp_path):
+    cache_path = tmp_path / 'weather-api-key'
+    monkeypatch.setattr(utils, 'PWS_API_KEY_CACHE_FILE', str(cache_path))
+    monkeypatch.setattr(utils, '_pws_api_key', None)
+    monkeypatch.delenv('WEATHER_API_KEY', raising=False)
+    return cache_path
+
 
 def test_meteoblue_parser_is_bounded_and_always_decomposed(monkeypatch):
     response = FakeResponse(b'<html><div id="blooimage" data-href="https://img"></div></html>')
@@ -119,11 +132,92 @@ def test_pws_no_content_returns_na(monkeypatch):
     assert response.closed
 
 
-def test_pws_requires_configured_api_key(monkeypatch):
-    monkeypatch.delenv('WEATHER_API_KEY', raising=False)
+def test_pws_key_is_discovered_and_persisted(monkeypatch, pws_key_cache):
+    browser_key = '1234567890abcdef1234567890abcdef'
+    unrelated_key = 'abcdef1234567890abcdef1234567890'
+    page = (
+        b'https://api.weather.com/v3/wx/forecast?apiKey=' +
+        unrelated_key.encode('ascii') +
+        b' https://api.weather.com/v2/pws/observations/current?apiKey=' +
+        browser_key.encode('ascii') + b'&stationId=KTEST1')
+    response = FakeResponse(content=page)
+    calls = []
 
-    with pytest.raises(RuntimeError, match='WEATHER_API_KEY'):
-        utils.get_pws_observation('KTEST1')
+    def get(*args, **kwargs):
+        calls.append((args, kwargs))
+        return response
+
+    monkeypatch.setattr(utils.requests, 'get', get)
+
+    assert utils.get_pws_api_key('KTEST1') == browser_key
+    assert pws_key_cache.read_text() == browser_key
+    assert response.closed
+    assert calls == [((utils.WUNDERGROUND_PWS_URL.format('KTEST1'),), {
+        'headers': utils.WUNDERGROUND_HEADERS,
+        'timeout': utils.TIMEOUT,
+        'stream': True,
+    })]
+
+    monkeypatch.setattr(utils, '_pws_api_key', None)
+    assert utils.get_pws_api_key('KTEST1') == browser_key
+    assert len(calls) == 1
+
+
+def test_pws_stale_key_is_refreshed_once(monkeypatch, pws_key_cache):
+    stale_key = '00000000000000000000000000000000'
+    current_key = '1234567890abcdef1234567890abcdef'
+    pws_key_cache.write_text(stale_key)
+    discovery_page = (
+        b'https://api.weather.com/v2/pws/observations/current?apiKey=' +
+        current_key.encode('ascii'))
+    api_keys = []
+    discovery_calls = []
+
+    def get(url, **kwargs):
+        if url == utils.WUNDERGROUND_PWS_URL.format('KTEST1'):
+            discovery_calls.append(url)
+            return FakeResponse(content=discovery_page)
+        api_key = kwargs['params']['apiKey']
+        api_keys.append(api_key)
+        if api_key == stale_key:
+            return FakeResponse(status_code=401)
+        return FakeResponse(json_data={'observations': [{
+            'humidity': 61,
+            'metric': {'temp': 19.5, 'windSpeed': 8.2},
+        }]})
+
+    monkeypatch.setattr(utils.requests, 'get', get)
+
+    result = json.loads(utils.get_pws_observation('KTEST1'))
+
+    assert result == {
+        'temp': '19.5&deg;C', 'humidity': '61%', 'wind': '8 km/h'
+    }
+    assert api_keys == [stale_key, current_key]
+    assert discovery_calls == [utils.WUNDERGROUND_PWS_URL.format('KTEST1')]
+    assert pws_key_cache.read_text() == current_key
+
+
+def test_pws_discovery_response_has_a_size_limit(monkeypatch, pws_key_cache):
+    response = FakeResponse(content=b'x' * 11)
+    monkeypatch.setattr(utils, 'PWS_PAGE_MAX_BYTES', 10)
+    monkeypatch.setattr(utils.requests, 'get', lambda *args, **kwargs: response)
+
+    with pytest.raises(ValueError, match='size limit'):
+        utils.get_pws_api_key('KTEST1')
+    assert response.closed
+
+
+def test_pws_http_error_does_not_expose_configured_key(monkeypatch):
+    api_key = '1234567890abcdef1234567890abcdef'
+    response = FakeResponse(status_code=401)
+    monkeypatch.setattr(utils.requests, 'get', lambda *args, **kwargs: response)
+
+    with pytest.raises(requests.HTTPError) as error:
+        utils.get_pws_observation('KTEST1', api_key=api_key)
+
+    assert str(error.value) == 'PWS API returned HTTP 401'
+    assert api_key not in str(error.value)
 
 
 def test_weather_timeout_returns_na_without_a_500(monkeypatch):
