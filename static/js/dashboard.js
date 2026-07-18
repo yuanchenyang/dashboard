@@ -1,3 +1,6 @@
+var AJAX_TIMEOUT_MS = 20 * 1000;
+$.ajaxSetup({timeout: AJAX_TIMEOUT_MS});
+
 function getIDByAttr(attr){
     return $('[' + attr + ']').map(function () {
         return this.getAttribute(attr);

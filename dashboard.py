@@ -8,9 +8,10 @@ from flask import Flask, render_template, request, make_response, url_for
 from flask_caching import Cache
 from werkzeug.serving import WSGIRequestHandler
 
-from utils import GBFSStationClient, get_blooimage_src, scrape_wunderground,\
+from utils import GBFSStationClient, get_blooimage_src, get_pws_observation,\
                   scrape_sailing_weather, get_next_bus_info, get_trash_info,\
-                  get_bkb_routesetting, get_mf_table, get_nws_weatherstory
+                  get_bkb_routesetting, get_mf_table, get_nws_weatherstory,\
+                  weather_data_json
 
 BaseRequestHandler = WSGIRequestHandler
 
@@ -41,6 +42,9 @@ def get_page(page_id):
 def default_page_id():
     available_pages[0].id
 
+def log_upstream_error(endpoint, error):
+    app.logger.warning('%s failed: %s', endpoint, error)
+
 @app.route('/')
 def main_page():
     page_id = request.args.get('page_id',      # First choice
@@ -62,7 +66,12 @@ def set_page():
 @app.route('/get_mf')
 @cache.cached(timeout=10*60, query_string=True)
 def get_mf():
-    return render_template('mf.html', **get_mf_table(request.args.get('url', '')))
+    try:
+        data = get_mf_table(request.args.get('url', ''))
+    except Exception as e:
+        log_upstream_error('mountain-forecast', e)
+        data = dict(mf_styles='', mf_config='', mf_scripts='', forecast_html='')
+    return render_template('mf.html', **data)
 
 @app.route('/get_weatherstory')
 @cache.cached(timeout=10*60, query_string=True)
@@ -70,46 +79,72 @@ def get_weatherstory():
     return json.dumps(get_nws_weatherstory(request.args.get('wfo', '')))
 
 @app.route('/get_meteoblue')
-@cache.cached(timeout=5*60, query_string=True)
+@cache.cached(timeout=15*60, query_string=True)
 def get_meteoblue():
     try:
         return get_blooimage_src(request.args.get('url', ''))
     except Exception as e:
-        # TODO: add error image
+        log_upstream_error('meteoblue', e)
         return '/static/img/favicon-32x32.png'
 
 @app.route('/get_bluebikes')
 @cache.cached(timeout=10, query_string=True)
 def get_bluebikes():
-    client = GBFSStationClient()
-    stations = client.get_stations()
-    requested = request.args.get('station_ids').split(',')
-    return json.dumps({i: stations[i] for i in requested})
+    requested = request.args.get('station_ids', '').split(',')
+    try:
+        client = GBFSStationClient()
+        stations = client.get_stations()
+        return json.dumps({i: stations[i] for i in requested})
+    except Exception as e:
+        log_upstream_error('Bluebikes', e)
+        unavailable = dict(num_bikes_available='N.A.', num_docks_available='N.A.')
+        return json.dumps({i: unavailable for i in requested})
 
 @app.route('/get_wunderground')
-@cache.cached(timeout=30, query_string=True)
-def get_wunderground():
-    return scrape_wunderground(request.args.get('id'))
+@app.route('/get_pws')
+@cache.cached(timeout=5*60, query_string=True)
+def get_pws():
+    try:
+        return get_pws_observation(request.args.get('id'))
+    except Exception as e:
+        log_upstream_error('PWS observation', e)
+        return weather_data_json(None, None, None)
 
 @app.route('/get_sailing_weather')
 @cache.cached(timeout=30, query_string=True)
 def get_sailing_weather():
-    return scrape_sailing_weather()
+    try:
+        return scrape_sailing_weather()
+    except Exception as e:
+        log_upstream_error('sailing weather', e)
+        return weather_data_json(None, None, None)
 
 @app.route('/get_nextbus')
 @cache.cached(timeout=30, query_string=True)
 def get_nextbus():
-    return get_next_bus_info(request.args.get('stopid'))
+    try:
+        return get_next_bus_info(request.args.get('stopid'))
+    except Exception as e:
+        log_upstream_error('NextBus', e)
+        return json.dumps(dict(title='(No Service)', arrivals='N.A.'))
 
 @app.route('/get_trash')
 @cache.cached(timeout=10*60, query_string=True)
 def get_trash():
-    return get_trash_info(request.args.get('placeid'))
+    try:
+        return get_trash_info(request.args.get('placeid'))
+    except Exception as e:
+        log_upstream_error('trash calendar', e)
+        return json.dumps(dict(title='N.A.', datestr='N.A.', items='N.A.'))
 
 @app.route('/get_bkb')
 @cache.cached(timeout=10*60, query_string=True)
 def get_bkb():
-    return get_bkb_routesetting(request.args.get('cal_id'))
+    try:
+        return get_bkb_routesetting(request.args.get('cal_id'))
+    except Exception as e:
+        log_upstream_error('BKB calendar', e)
+        return json.dumps(dict(datestr='N.A.', items='N.A.'))
 
 @app.errorhandler(404)
 def page_not_found(e):

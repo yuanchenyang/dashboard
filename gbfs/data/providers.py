@@ -21,7 +21,6 @@ class SystemDataProvider(DataProvider):
         data = self._file_fetcher.fetch(self._csv_url)
         reader = self._csv_dict_reader(data)
         for item in reader:
-            assert item.__class__.__name__ == 'OrderedDict'
             yield dict(item)
 
 
