@@ -33,15 +33,6 @@ class FakeResponse:
             yield self.content[offset:offset + chunk_size]
 
 
-@pytest.fixture
-def pws_key_cache(monkeypatch, tmp_path):
-    cache_path = tmp_path / 'weather-api-key'
-    monkeypatch.setattr(utils, 'PWS_API_KEY_CACHE_FILE', str(cache_path))
-    monkeypatch.setattr(utils, '_pws_api_key', None)
-    monkeypatch.delenv('WEATHER_API_KEY', raising=False)
-    return cache_path
-
-
 def test_meteoblue_parser_is_bounded_and_always_decomposed(monkeypatch):
     response = FakeResponse(b'<html><div id="blooimage" data-href="https://img"></div></html>')
     soup = RealBeautifulSoup(response.content, 'html.parser')
@@ -132,15 +123,28 @@ def test_pws_no_content_returns_na(monkeypatch):
     assert response.closed
 
 
-def test_pws_key_is_discovered_and_persisted(monkeypatch, pws_key_cache):
-    browser_key = '1234567890abcdef1234567890abcdef'
-    unrelated_key = 'abcdef1234567890abcdef1234567890'
-    page = (
-        b'https://api.weather.com/v3/wx/forecast?apiKey=' +
-        unrelated_key.encode('ascii') +
-        b' https://api.weather.com/v2/pws/observations/current?apiKey=' +
-        browser_key.encode('ascii') + b'&stationId=KTEST1')
-    response = FakeResponse(content=page)
+def pws_page(unit='e', status='connected', temp='61', humidity='64',
+             wind='2.5'):
+    def widget(tag, attr, value):
+        return ('<{0} data-pws-id="KTEST1" data-status="{1}" data-unit="{2}" '
+                '{3}="{4}" class="widget-view"></{0}>').format(
+                    tag, status, unit, attr, value)
+    return ('<html><body>' +
+            widget('temp-widget-view', 'data-temp', temp) +
+            widget('humidity-widget-view', 'data-humidity', humidity) +
+            widget('wind-widget-view', 'data-wind-speed', wind) +
+            '</body></html>').encode('utf-8')
+
+
+@pytest.fixture
+def no_weather_api_key(monkeypatch):
+    monkeypatch.delenv('WEATHER_API_KEY', raising=False)
+
+
+def test_pws_dashboard_widgets_are_converted_to_metric(monkeypatch,
+                                                       no_weather_api_key):
+    response = FakeResponse(content=pws_page(temp='68', humidity='64',
+                                             wind='10'))
     calls = []
 
     def get(*args, **kwargs):
@@ -149,63 +153,89 @@ def test_pws_key_is_discovered_and_persisted(monkeypatch, pws_key_cache):
 
     monkeypatch.setattr(utils.requests, 'get', get)
 
-    assert utils.get_pws_api_key('KTEST1') == browser_key
-    assert pws_key_cache.read_text() == browser_key
-    assert response.closed
+    result = json.loads(utils.get_pws_observation('ktest1'))
+
+    assert result == {'temp': '20.0&deg;C', 'humidity': '64%',
+                      'wind': '16 km/h'}
     assert calls == [((utils.WUNDERGROUND_PWS_URL.format('KTEST1'),), {
         'headers': utils.WUNDERGROUND_HEADERS,
         'timeout': utils.TIMEOUT,
         'stream': True,
     })]
-
-    monkeypatch.setattr(utils, '_pws_api_key', None)
-    assert utils.get_pws_api_key('KTEST1') == browser_key
-    assert len(calls) == 1
+    assert response.closed
 
 
-def test_pws_stale_key_is_refreshed_once(monkeypatch, pws_key_cache):
-    stale_key = '00000000000000000000000000000000'
-    current_key = '1234567890abcdef1234567890abcdef'
-    pws_key_cache.write_text(stale_key)
-    discovery_page = (
-        b'https://api.weather.com/v2/pws/observations/current?apiKey=' +
-        current_key.encode('ascii'))
-    api_keys = []
-    discovery_calls = []
-
-    def get(url, **kwargs):
-        if url == utils.WUNDERGROUND_PWS_URL.format('KTEST1'):
-            discovery_calls.append(url)
-            return FakeResponse(content=discovery_page)
-        api_key = kwargs['params']['apiKey']
-        api_keys.append(api_key)
-        if api_key == stale_key:
-            return FakeResponse(status_code=401)
-        return FakeResponse(json_data={'observations': [{
-            'humidity': 61,
-            'metric': {'temp': 19.5, 'windSpeed': 8.2},
-        }]})
-
-    monkeypatch.setattr(utils.requests, 'get', get)
+@pytest.mark.parametrize('unit,expected_wind', [('m', '10 km/h'),
+                                                ('h', '16 km/h'),
+                                                ('s', '36 km/h')])
+def test_pws_dashboard_widgets_handle_unit_systems(monkeypatch,
+                                                   no_weather_api_key,
+                                                   unit, expected_wind):
+    response = FakeResponse(content=pws_page(unit=unit, temp='20',
+                                             wind='10'))
+    monkeypatch.setattr(utils.requests, 'get', lambda *a, **k: response)
 
     result = json.loads(utils.get_pws_observation('KTEST1'))
 
-    assert result == {
-        'temp': '19.5&deg;C', 'humidity': '61%', 'wind': '8 km/h'
-    }
-    assert api_keys == [stale_key, current_key]
-    assert discovery_calls == [utils.WUNDERGROUND_PWS_URL.format('KTEST1')]
-    assert pws_key_cache.read_text() == current_key
+    assert result['temp'] == '20.0&deg;C'
+    assert result['wind'] == expected_wind
 
 
-def test_pws_discovery_response_has_a_size_limit(monkeypatch, pws_key_cache):
+def test_pws_offline_station_returns_na(monkeypatch, no_weather_api_key):
+    response = FakeResponse(content=pws_page(status='offline', temp='',
+                                             humidity='', wind=''))
+    monkeypatch.setattr(utils.requests, 'get', lambda *a, **k: response)
+
+    result = json.loads(utils.get_pws_observation('KTEST1'))
+
+    assert result == {'temp': 'N/A', 'humidity': 'N/A', 'wind': 'N/A'}
+
+
+def test_pws_layout_change_raises(monkeypatch, no_weather_api_key):
+    response = FakeResponse(content=b'<html><body>redesigned</body></html>')
+    monkeypatch.setattr(utils.requests, 'get', lambda *a, **k: response)
+
+    with pytest.raises(ValueError, match='no data-temp'):
+        utils.get_pws_observation('KTEST1')
+
+
+def test_pws_rejects_invalid_station_id():
+    with pytest.raises(ValueError, match='Invalid PWS station ID'):
+        utils.get_pws_observation('../etc')
+
+
+def test_pws_dashboard_response_has_a_size_limit(monkeypatch,
+                                                 no_weather_api_key):
     response = FakeResponse(content=b'x' * 11)
     monkeypatch.setattr(utils, 'PWS_PAGE_MAX_BYTES', 10)
     monkeypatch.setattr(utils.requests, 'get', lambda *args, **kwargs: response)
 
     with pytest.raises(ValueError, match='size limit'):
-        utils.get_pws_api_key('KTEST1')
+        utils.get_pws_observation('KTEST1')
     assert response.closed
+
+
+def test_mf_table_matches_custom_element(monkeypatch):
+    page = (b'<html><head></head><body><fc-forecast-table '
+            b'class="js-vis-forecast forecast-table" id="forecast-table">'
+            b'<table><tr><td><img src="/x.png"></td></tr></table>'
+            b'</fc-forecast-table></body></html>')
+    monkeypatch.setattr(utils.requests, 'get',
+                        lambda *a, **k: FakeResponse(content=page))
+
+    data = utils.get_mf_table('Some-Peak/forecasts/1000')
+
+    assert data['forecast_html'].startswith('<fc-forecast-table')
+    assert 'src="{}/x.png"'.format(utils.MF_BASE) in data['forecast_html']
+
+
+def test_mf_missing_table_raises(monkeypatch):
+    page = b'<html><head></head><body>nothing</body></html>'
+    monkeypatch.setattr(utils.requests, 'get',
+                        lambda *a, **k: FakeResponse(content=page))
+
+    with pytest.raises(ValueError, match='no forecast table'):
+        utils.get_mf_table('Some-Peak/forecasts/1000')
 
 
 def test_pws_http_error_does_not_expose_configured_key(monkeypatch):

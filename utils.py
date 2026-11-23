@@ -1,8 +1,6 @@
 import re
 import json
 import os
-import tempfile
-import threading
 import time
 import requests
 import icalendar
@@ -26,15 +24,14 @@ NWS_WXSTORY_DEFAULT = 'https://www.weather.gov/images/{}/WxStory/WeatherStory1.p
 TIMEOUT = (3.05, 10)
 METEOBLUE_TIMEOUT = (3.05, 10)
 PWS_PAGE_MAX_BYTES = 2 * 1024 * 1024
-PWS_API_KEY_CACHE_FILE = os.environ.get(
-    'WEATHER_API_KEY_CACHE_FILE',
-    os.path.join(tempfile.gettempdir(), 'dashboard-weather-api-key'))
-PWS_API_KEY_PATTERN = re.compile(
-    rb'https://api\.weather\.com/v2/pws[^"\'<>\s]{0,2048}?'
-    rb'apiKey=([A-Za-z0-9_-]{16,128})',
-    re.IGNORECASE)
-PWS_API_KEY_VALUE_PATTERN = re.compile(r'^[A-Za-z0-9_-]{16,128}$')
-PWS_AUTH_FAILURE_STATUSES = {401, 403}
+PWS_STATION_ID_PATTERN = re.compile(r'[A-Z0-9]{2,32}')
+# The Wunderground station dashboard server-renders one custom element per
+# widget, with the current reading in data-* attributes and the unit system in
+# data-unit (weather.com codes: e=imperial, m=metric, h=UK hybrid, s=SI).
+PWS_WIDGETS = {'temp': ('temp-widget-view', 'data-temp'),
+               'humidity': ('humidity-widget-view', 'data-humidity'),
+               'wind': ('wind-widget-view', 'data-wind-speed')}
+PWS_PARSE_ONLY = SoupStrainer([tag for tag, _ in PWS_WIDGETS.values()])
 PARSER = 'html.parser'
 METEOBLUE_PARSE_ONLY = SoupStrainer('div', id='blooimage')
 
@@ -61,9 +58,6 @@ COOKIES = {'precip': 'MILLIMETER',
            'speed': 'KILOMETER_PER_HOUR',
            'temp': 'CELSIUS'}
 
-_pws_api_key = None
-_pws_api_key_lock = threading.Lock()
-
 def get_blooimage_src(url):
     soup = None
     try:
@@ -80,40 +74,47 @@ def get_blooimage_src(url):
         if soup is not None:
             soup.decompose()
 
-def _read_cached_pws_api_key():
+def _raise_for_pws_status(response):
     try:
-        with open(PWS_API_KEY_CACHE_FILE, encoding='ascii') as cache_file:
-            api_key = cache_file.read(129).strip()
-    except (OSError, UnicodeError):
-        return None
-    if PWS_API_KEY_VALUE_PATTERN.fullmatch(api_key):
-        return api_key
-    return None
+        response.raise_for_status()
+    except requests.HTTPError as error:
+        raise requests.HTTPError(
+            'PWS API returned HTTP {}'.format(response.status_code),
+            response=response) from error
 
 
-def _store_pws_api_key(api_key):
-    cache_dir = os.path.dirname(PWS_API_KEY_CACHE_FILE) or '.'
-    os.makedirs(cache_dir, exist_ok=True)
-    descriptor, temporary_path = tempfile.mkstemp(
-        prefix='.dashboard-weather-api-key-', dir=cache_dir, text=True)
-    try:
-        os.fchmod(descriptor, 0o600)
-        with os.fdopen(descriptor, 'w', encoding='ascii') as cache_file:
-            cache_file.write(api_key)
-        os.replace(temporary_path, PWS_API_KEY_CACHE_FILE)
-    except Exception:
-        try:
-            os.unlink(temporary_path)
-        except OSError:
-            pass
-        raise
+def _get_pws_api_observation(station_id, api_key):
+    params = dict(stationId=station_id, format='json', units='m',
+                  numericPrecision='decimal', apiKey=api_key)
+    with requests.get(PWS_OBSERVATIONS_URL, params=params,
+                      timeout=TIMEOUT) as res:
+        if res.status_code == 204:
+            return weather_data_json(None, None, None)
+        _raise_for_pws_status(res)
+        observations = res.json().get('observations', [])
+    if not observations:
+        return weather_data_json(None, None, None)
+    observation = observations[0]
+    metric = observation.get('metric', {})
+    return weather_data_json(metric.get('temp'),
+                             observation.get('humidity'),
+                             metric.get('windSpeed'))
 
 
-def _discover_pws_api_key(station_id):
-    station_id = str(station_id or '').upper()
-    if not re.fullmatch(r'[A-Z0-9]{2,32}', station_id):
-        raise ValueError('Invalid PWS station ID')
+def _pws_widget_value(widget, attr):
+    if widget is None:
+        # Missing widgets mean the page layout changed, not that the station
+        # is offline (offline stations still render widgets).
+        raise ValueError('Wunderground station page had no {}'.format(attr))
+    if widget.get('data-status') != 'connected':
+        return None, None
+    value = widget.get(attr)
+    if value in (None, ''):
+        return None, None
+    return float(value), widget.get('data-unit')
 
+
+def _scrape_pws_dashboard(station_id):
     page = bytearray()
     with requests.get(WUNDERGROUND_PWS_URL.format(station_id),
                       headers=WUNDERGROUND_HEADERS, timeout=TIMEOUT,
@@ -126,72 +127,42 @@ def _discover_pws_api_key(station_id):
             if len(page) > PWS_PAGE_MAX_BYTES:
                 raise ValueError('Wunderground station page exceeded size limit')
 
-    match = PWS_API_KEY_PATTERN.search(page)
-    if match is None:
-        raise ValueError('Wunderground station page did not contain a PWS API key')
-    return match.group(1).decode('ascii')
-
-
-def get_pws_api_key(station_id, stale_key=None):
-    global _pws_api_key
-
-    with _pws_api_key_lock:
-        if _pws_api_key and (stale_key is None or _pws_api_key != stale_key):
-            return _pws_api_key
-
-        cached_key = _read_cached_pws_api_key()
-        if cached_key and (stale_key is None or cached_key != stale_key):
-            _pws_api_key = cached_key
-            return cached_key
-
-        api_key = _discover_pws_api_key(station_id)
-        _store_pws_api_key(api_key)
-        _pws_api_key = api_key
-        return api_key
-
-
-def _raise_for_pws_status(response):
+    soup = BeautifulSoup(bytes(page), PARSER, parse_only=PWS_PARSE_ONLY)
+    del page
     try:
-        response.raise_for_status()
-    except requests.HTTPError as error:
-        raise requests.HTTPError(
-            'PWS API returned HTTP {}'.format(response.status_code),
-            response=response) from error
+        values = {name: _pws_widget_value(soup.find(tag), attr)
+                  for name, (tag, attr) in PWS_WIDGETS.items()}
+    finally:
+        soup.decompose()
+
+    temp, temp_unit = values['temp']
+    if temp is not None and temp_unit == 'e':
+        temp = F_to_C(temp)
+    elif temp is not None and temp_unit not in ('m', 'h', 's'):
+        raise ValueError('Unknown Wunderground unit {!r}'.format(temp_unit))
+
+    wind, wind_unit = values['wind']
+    if wind is not None:
+        if wind_unit in ('e', 'h'):
+            wind = mi_to_km(wind)
+        elif wind_unit == 's':
+            wind = wind * 3.6
+        elif wind_unit != 'm':
+            raise ValueError('Unknown Wunderground unit {!r}'.format(wind_unit))
+
+    humidity, _ = values['humidity']
+    return weather_data_json(temp, humidity, wind)
 
 
 def get_pws_observation(station_id, api_key=None):
-    configured_api_key = api_key or os.environ.get('WEATHER_API_KEY')
-    current_api_key = configured_api_key or get_pws_api_key(station_id)
+    station_id = str(station_id or '').upper()
+    if not PWS_STATION_ID_PATTERN.fullmatch(station_id):
+        raise ValueError('Invalid PWS station ID')
 
-    for attempt in range(2):
-        params = dict(stationId=station_id, format='json', units='m',
-                      numericPrecision='decimal', apiKey=current_api_key)
-        stale_key = False
-        with requests.get(PWS_OBSERVATIONS_URL, params=params,
-                          timeout=TIMEOUT) as res:
-            if res.status_code in PWS_AUTH_FAILURE_STATUSES:
-                if configured_api_key or attempt > 0:
-                    _raise_for_pws_status(res)
-                stale_key = True
-            elif res.status_code == 204:
-                return weather_data_json(None, None, None)
-            else:
-                _raise_for_pws_status(res)
-                observations = res.json().get('observations', [])
-
-        if stale_key:
-            current_api_key = get_pws_api_key(
-                station_id, stale_key=current_api_key)
-            continue
-        if not observations:
-            return weather_data_json(None, None, None)
-        observation = observations[0]
-        metric = observation.get('metric', {})
-        return weather_data_json(metric.get('temp'),
-                                 observation.get('humidity'),
-                                 metric.get('windSpeed'))
-
-    raise RuntimeError('PWS authentication retry failed')
+    api_key = api_key or os.environ.get('WEATHER_API_KEY')
+    if api_key:
+        return _get_pws_api_observation(station_id, api_key)
+    return _scrape_pws_dashboard(station_id)
 
 def scrape_sailing_weather():
     with requests.get(SAILING_WEATHER_URL, timeout=TIMEOUT) as res:
@@ -317,7 +288,12 @@ def get_mf_table(url):
                           or '/assets/application' in s.get('src', ''))
         config += ''.join(str(s) for s in soup.find_all('script', src=False)
                           if s.string and 'FCGON' in s.string)
-        table = str(soup.find('div', class_='forecast-table'))
+        # The container is a custom element (<fc-forecast-table>) rather than
+        # a div, so match on the class alone.
+        table = soup.find(class_='forecast-table')
+        if table is None:
+            raise ValueError('mountain-forecast page had no forecast table')
+        table = str(table)
     finally:
         if soup is not None:
             soup.decompose()
